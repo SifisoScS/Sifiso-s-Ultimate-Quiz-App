@@ -1,22 +1,31 @@
 # src/utils/file_utils.py
 import csv
+import json
+import os
 
 def load_questions_from_csv(file_path):
-    """Load questions from a CSV file."""
     questions = []
-    with open(file_path, "r") as f:
-        reader = csv.DictReader(f)
+    with open(file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
         for row in reader:
-            # Split the options string into a list
-            options = row["options"].split(",")
-            # Strip any extra whitespace from options
-            options = [option.strip() for option in options]
-            # Append the question data
-            questions.append({
-                "question": row["question"],
-                "options": options,
-                "answer": row["answer"],
-                "category": row["category"],
-                "difficulty": row["difficulty"]
-            })
+            row['options'] = row['options'].split(';')
+            questions.append(row)
     return questions
+
+def load_user_progress(file_path="app/data/user_progress.json"):
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error loading user progress: {e}")
+            return {}
+    return {}
+
+def save_user_progress(progress, file_path="app/data/user_progress.json"):
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(progress, f, indent=4)
+    except Exception as e:
+        print(f"Error saving user progress: {e}")
+        raise
