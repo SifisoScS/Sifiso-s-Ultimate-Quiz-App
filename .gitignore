@@ -22,5 +22,8 @@ desktop.ini
 .idea/
 .vscode/
 
+app/data/leaderboard.json
+app/data/user_progress.json
+
 # Dependency Management
 requirements.txt.lock

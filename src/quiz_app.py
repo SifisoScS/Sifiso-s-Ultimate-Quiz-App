@@ -1,23 +1,22 @@
 # src/quiz_app.py
 import streamlit as st
 import time
-from src.utils.file_utils import load_questions_from_csv
+from src.utils.file_utils import load_questions_from_csv, load_user_progress, save_user_progress
 from src.utils.quiz_logic import shuffle_questions, check_answer
 from src.utils.leaderboard_utils import load_leaderboard, update_leaderboard
 
-# Set page config (MUST BE THE FIRST STREAMLIT COMMAND)
+# Set page config
 st.set_page_config(page_title="Sifiso's Ultimate Quiz App", page_icon=":question:", layout="wide")
 
-# Helper function to load CSS
+# Load CSS
 def local_css(file_name):
     with open(file_name, "r") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Load CSS (AFTER st.set_page_config)
 local_css("app/assets/style.css")
 
 def main():
-    # Initialize session state variables if they do not exist
+    # Initialize session state
     if 'index' not in st.session_state:
         st.session_state.index = 0
     if 'score' not in st.session_state:
@@ -27,54 +26,106 @@ def main():
     if 'question_order' not in st.session_state:
         st.session_state.question_order = []
     if 'selected_category' not in st.session_state:
-        st.session_state.selected_category = "All"  # Default category
+        st.session_state.selected_category = "All"
     if 'selected_difficulty' not in st.session_state:
-        st.session_state.selected_difficulty = "All"  # Default difficulty
+        st.session_state.selected_difficulty = "All"
+    if 'selected_grade_level' not in st.session_state:
+        st.session_state.selected_grade_level = "All"
+    if 'selected_subject' not in st.session_state:
+        st.session_state.selected_subject = "All"
+    if 'user_id' not in st.session_state:
+        st.session_state.user_id = None
 
-    # Load questions
+    # Prompt for user ID
+    if not st.session_state.user_id:
+        st.sidebar.subheader("Enter Your Name")
+        user_id = st.sidebar.text_input("Your name:", key="user_id_input")
+        if user_id:
+            st.session_state.user_id = user_id
+            st.rerun()
+
+    # Load questions and progress
     questions = load_questions_from_csv("app/data/questions.csv")
+    user_progress = load_user_progress()
 
-    # Extract unique categories and difficulty levels
+    # Initialize user progress if new user
+    if st.session_state.user_id and st.session_state.user_id not in user_progress:
+        user_progress[st.session_state.user_id] = {
+            "Math": {"correct": 0, "total": 0},
+            "Science": {"correct": 0, "total": 0},
+            "Social Studies": {"correct": 0, "total": 0},
+            "English": {"correct": 0, "total": 0}
+        }
+        save_user_progress(user_progress)
+
+    # Extract unique filters
     categories = sorted({q["category"] for q in questions})
-    difficulty_levels = ["All", "Easy", "Medium", "Hard"]  # Reordered difficulty levels
+    difficulty_levels = ["All", "Easy", "Medium", "Hard"]
+    grade_levels = ["All"] + sorted({q["grade_level"] for q in questions}, key=int)
+    subjects = ["All"] + sorted({q["subject"] for q in questions})
 
-    # Add a category and difficulty selector to the left sidebar
+    # Sidebar filters
     st.sidebar.title("Quiz Settings")
     new_selected_category = st.sidebar.selectbox("Choose a category", ["All"] + categories)
     new_selected_difficulty = st.sidebar.selectbox("Choose a difficulty level", difficulty_levels)
+    new_selected_grade_level = st.sidebar.selectbox("Choose a grade level", grade_levels)
+    new_selected_subject = st.sidebar.selectbox("Choose a subject", subjects)
 
-    # Reset quiz state if category or difficulty changes
+    # Display progress
+    if st.session_state.user_id:
+        st.sidebar.subheader(f"Progress for {st.session_state.user_id}")
+        for subject in user_progress.get(st.session_state.user_id, {}):
+            total = user_progress[st.session_state.user_id][subject]["total"]
+            correct = user_progress[st.session_state.user_id][subject]["correct"]
+            accuracy = (correct / total * 100) if total > 0 else 0
+            st.sidebar.write(f"{subject}: {accuracy:.1f}% ({correct}/{total})")
+
+    # Reset quiz if filters change
     if (new_selected_category != st.session_state.selected_category or
-        new_selected_difficulty != st.session_state.selected_difficulty):
+        new_selected_difficulty != st.session_state.selected_difficulty or
+        new_selected_grade_level != st.session_state.selected_grade_level or
+        new_selected_subject != st.session_state.selected_subject):
         st.session_state.selected_category = new_selected_category
         st.session_state.selected_difficulty = new_selected_difficulty
+        st.session_state.selected_grade_level = new_selected_grade_level
+        st.session_state.selected_subject = new_selected_subject
         st.session_state.score = 0
         st.session_state.index = 0
         st.session_state.answers = []
-        st.session_state.question_order = []  # Reset question_order
-        st.rerun()  # Force a rerun to apply the changes immediately
+        st.session_state.question_order = []
+        st.rerun()
 
-    # Filter questions based on the selected category and difficulty
+    # Filter questions
     filtered_questions = questions
     if st.session_state.selected_category != "All":
         filtered_questions = [q for q in filtered_questions if q["category"] == st.session_state.selected_category]
     if st.session_state.selected_difficulty != "All":
         filtered_questions = [q for q in filtered_questions if q["difficulty"] == st.session_state.selected_difficulty]
+    if st.session_state.selected_grade_level != "All":
+        filtered_questions = [q for q in filtered_questions if q["grade_level"] == st.session_state.selected_grade_level]
+    if st.session_state.selected_subject != "All":
+        filtered_questions = [q for q in filtered_questions if q["subject"] == st.session_state.selected_subject]
 
-    # Initialize question_order if not already set
-    if 'question_order' not in st.session_state or not st.session_state.question_order:
+    # Check if no questions match
+    if not filtered_questions:
+        st.warning("No questions available for this selection. Try adjusting the filters.")
+        return
+
+    # Initialize question order
+    if not st.session_state.question_order:
         st.session_state.question_order = shuffle_questions(list(range(len(filtered_questions))))
 
-    # Quiz logic
+    # Display question
     def display_question():
         if st.session_state.index < len(filtered_questions):
             question_data = filtered_questions[st.session_state.question_order[st.session_state.index]]
             st.write(f"**Question {st.session_state.index + 1}:** {question_data['question']}")
-            st.write(f"**Category:** {question_data['category']} | **Difficulty:** {question_data['difficulty']}")
+            st.write(f"**Category:** {question_data['category']} | **Difficulty:** {question_data['difficulty']} | "
+                    f"**Grade:** {question_data['grade_level']} | **Subject:** {question_data['subject']}")
             user_answer = st.radio("Choose your answer:", question_data['options'])
 
-            # Create a placeholder for the message
             message_placeholder = st.empty()
+            explanation_placeholder = st.empty()
 
             if st.button("Submit"):
                 is_correct = check_answer(user_answer, question_data['answer'])
@@ -84,7 +135,10 @@ def main():
                     "correct_answer": question_data['answer'],
                     "is_correct": is_correct,
                     "category": question_data['category'],
-                    "difficulty": question_data['difficulty']
+                    "difficulty": question_data['difficulty'],
+                    "grade_level": question_data['grade_level'],
+                    "subject": question_data['subject'],
+                    "explanation": question_data['explanation']  # Store explanation
                 })
                 if is_correct:
                     st.session_state.score += 1
@@ -92,13 +146,26 @@ def main():
                 else:
                     message_placeholder.error(f"Wrong! The correct answer is {question_data['answer']} 😞")
 
-                # Add a short delay before clearing the message and rerunning
-                time.sleep(1)  # Adjust the delay as needed
-                message_placeholder.empty()  # Clear the message
+                with explanation_placeholder.expander("See Explanation"):
+                    st.write(question_data['explanation'])
+
+                # Update user progress
+                if st.session_state.user_id:
+                    subject = question_data['subject']
+                    user_progress[st.session_state.user_id][subject]["total"] += 1
+                    if is_correct:
+                        user_progress[st.session_state.user_id][subject]["correct"] += 1
+                    try:
+                        save_user_progress(user_progress)
+                        # st.write(f"Debug: Saved progress for {st.session_state.user_id}")  # Uncomment for debugging
+                    except Exception as e:
+                        st.error(f"Failed to save progress: {e}")
+
+                time.sleep(2)
+                message_placeholder.empty()
                 st.session_state.index += 1
                 st.rerun()
         else:
-            # Stop the quiz once all questions are answered
             display_results()
 
     def display_results():
@@ -106,12 +173,14 @@ def main():
         st.write("### Detailed Results:")
         for i, answer in enumerate(st.session_state.answers):
             st.write(f"**Question {i + 1}:** {answer['question']}")
-            st.write(f"**Category:** {answer['category']} | **Difficulty:** {answer['difficulty']}")
+            st.write(f"**Category:** {answer['category']} | **Difficulty:** {answer['difficulty']} | "
+                    f"**Grade:** {answer['grade_level']} | **Subject:** {answer['subject']}")
             st.write(f"Your Answer: {answer['user_answer']} - {'Correct' if answer['is_correct'] else 'Wrong'}")
             st.write(f"Correct Answer: {answer['correct_answer']}")
+            with st.expander("See Explanation"):
+                st.write(answer['explanation'])
             st.write("---")
 
-        # Update the leaderboard
         if st.session_state.score > 0:
             name = st.text_input("Enter your name to save your score:")
             if st.button("Save Score"):
@@ -130,24 +199,19 @@ def main():
 
     # Main layout
     st.title("Sifiso's Ultimate Quiz App")
+    col1, col2 = st.columns([2, 1])
 
-    # Create columns for the center (quiz) and right (leaderboard)
-    col1, col2 = st.columns([2, 1])  # Center column is twice as wide as the right column
-
-    # Display the quiz in the center column
     with col1:
         if st.session_state.index < len(filtered_questions):
             display_question()
         else:
-            st.write("### You've completed all questions for this difficulty level!")
+            st.write("### You've completed all questions for this selection!")
             display_results()
 
-    # Display the leaderboard in the right column
     with col2:
         st.write("### Leaderboard")
         leaderboard = load_leaderboard()
         if leaderboard:
-            # Add emojis for the top 3 positions
             leaderboard_with_icons = []
             for i, entry in enumerate(leaderboard):
                 if i == 0:
@@ -159,23 +223,16 @@ def main():
                 else:
                     entry["position"] = f"{i + 1}."
                 leaderboard_with_icons.append(entry)
-
-            # Display the leaderboard as a table
             st.dataframe(
                 leaderboard_with_icons,
                 column_order=["position", "name", "score"],
-                column_config={
-                    "position": "Position",
-                    "name": "Name",
-                    "score": "Score"
-                },
+                column_config={"position": "Position", "name": "Name", "score": "Score"},
                 use_container_width=True,
                 hide_index=True,
             )
         else:
             st.write("No scores yet. Be the first to play!")
 
-    # Add a "Powered by Sifiso" link to the sidebar
     st.sidebar.markdown(
         """
         <div style="text-align: center; margin-top: 20px;">
@@ -187,6 +244,5 @@ def main():
         unsafe_allow_html=True,
     )
 
-# Run the app
 if __name__ == "__main__":
     main()
