@@ -1,0 +1,43 @@
+{
+    "755512": {
+        "teacher": "Mr Shezi",
+        "students": []
+    },
+    "456304": {
+        "teacher": "MsSmith",
+        "students": []
+    },
+    "402974": {
+        "teacher": "Ms Smith",
+        "students": []
+    },
+    "220228": {
+        "teacher": "Ms Smith",
+        "students": []
+    },
+    "947734": {
+        "teacher": "MsSmith",
+        "students": []
+    },
+    "734387": {
+        "teacher": "MsSmith",
+        "students": []
+    },
+    "501825": {
+        "teacher": "MsSmith",
+        "students": []
+    },
+    "682057": {
+        "teacher": "Ms Smith",
+        "students": [
+            {
+                "name": "Test1",
+                "score": 1
+            }
+        ]
+    },
+    "518239": {
+        "teacher": "Ms Smith",
+        "students": []
+    }
+}
