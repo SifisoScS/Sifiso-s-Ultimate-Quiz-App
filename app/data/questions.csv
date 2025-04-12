@@ -42,3 +42,33 @@ Which word is an adjective?,Quickly;Beautiful;Run;House,Beautiful,Grammar,Medium
 What is the past tense of ‘go’?,Goes;Gone;Went;Going,Went,Grammar,Medium,7,English,"The past tense of ‘go’ is ‘went,’ used for actions that happened before now."
 What is an antonym for ‘happy’?,Joyful;Sad;Excited;Content,Sad,Vocabulary,Easy,6,English,An antonym is a word with the opposite meaning. ‘Sad’ is the opposite of ‘happy.’
 What is alliteration?,Repeating initial sounds;Comparing two things;Using like or as;Exaggeration,Repeating initial sounds,Literary Devices,Medium,8,English,"Alliteration is the repetition of initial sounds, like ‘Peter Piper picked.’"
+What is 8 + 7?,14;15;16;17,15,Algebra,Easy,6,Math,"Adding 8 and 7 gives 15, as 8 units plus 7 units equals 15 units."
+What is 20 - 9?,10;11;12;13,11,Algebra,Easy,6,Math,"Subtracting 9 from 20 leaves 11, as 20 units minus 9 units equals 11 units."
+What is 6 × 3?,15;18;21;24,18,Algebra,Easy,6,Math,"Multiplying 6 by 3 means adding 6 three times (6 + 6 + 6), which equals 18."
+What is 16 ÷ 4?,3;4;5;6,4,Algebra,Easy,6,Math,"Dividing 16 by 4 means finding how many groups of 4 fit into 16, which is 4 groups."
+Solve for x: x + 4 = 10,x=4;x=5;x=6;x=7,x=6,Algebra,Medium,7,Math,"To solve x + 4 = 10, subtract 4 from both sides: x = 10 - 4 = 6."
+What is the perimeter of a rectangle with length 5 and width 3?,15;16;17;18,16,Geometry,Medium,7,Math,"Perimeter is 2 × (length + width). For length 5 and width 3, it’s 2 × (5 + 3) = 16 units."
+What is 4 squared?,12;14;16;18,16,Algebra,Medium,7,Math,"Squaring 4 means 4 × 4, which equals 16."
+Solve for y: 2y = 12,y=4;y=5;y=6;y=7,y=6,Algebra,Medium,8,Math,"To solve 2y = 12, divide both sides by 2: y = 12 ÷ 2 = 6."
+What is 25% of 40?,8;10;12;14,10,Algebra,Medium,8,Math,"To find 25% of 40, calculate 0.25 × 40 = 10."
+Which number is odd?,2;4;7;8,7,Number Sense,Easy,6,Math,"An odd number is not divisible by 2. Among the options, 7 is not divisible by 2, so it’s odd."
+What is H2O?,Water;Salt;Sugar;Oil,Water,Chemistry,Easy,7,Science,"H2O is the chemical formula for water, a molecule with two hydrogen atoms and one oxygen atom."
+What planet is known as the Red Planet?,Venus;Mars;Jupiter;Saturn,Mars,Astronomy,Easy,6,Science,"Mars is called the Red Planet due to its reddish appearance, caused by iron oxide (rust) on its surface."
+What gas do humans exhale?,Oxygen;Carbon Dioxide;Nitrogen;Helium,Carbon Dioxide,Biology,Easy,6,Science,"Humans exhale carbon dioxide, a waste product of respiration, while inhaling oxygen."
+What is the primary source of Earth’s energy?,Moon;Sun;Wind;Water,Sun,Physics,Medium,7,Science,"The Sun provides most of Earth’s energy, driving processes like photosynthesis and weather."
+What is the boiling point of water?,0°C;50°C;100°C;150°C,100°C,Chemistry,Medium,7,Science,"Water boils at 100°C at standard pressure, changing from liquid to gas."
+Which organ pumps blood?,Brain;Lungs;Heart;Liver,Heart,Biology,Easy,6,Science,"The heart pumps blood throughout the body, delivering oxygen and nutrients."
+What is a force?,Push or pull;Color;Sound;Shape,Push or pull,Physics,Medium,7,Science,A force is a push or pull that can change an object’s motion or shape.
+What is the smallest unit of life?,Atom;Cell;Molecule;Organ,Cell,Biology,Medium,8,Science,"The cell is the smallest unit of life, performing all functions necessary for living organisms."
+What causes tides?,Sun;Wind;Moon;Earth,Moon,Astronomy,Medium,8,Science,"The Moon’s gravity pulls on Earth’s oceans, causing tides."
+What is a mixture?,Single substance;Two or more substances;Gas only;Liquid only,Two or more substances,Chemistry,Medium,8,Science,A mixture contains two or more substances that are physically combined but not chemically bonded.
+What is a noun?,"Action word;Person, place, or thing;Describing word;Connecting word","Person, place, or thing",Grammar,Easy,6,English,"A noun names a person, place, or thing, like ‘dog,’ ‘school,’ or ‘Mary.’"
+Which word is a verb?,Big;Run;House;Blue,Run,Grammar,Easy,6,English,A verb shows action or a state of being. ‘Run’ is an action word.
+What punctuation ends a declarative sentence?,Comma;Period;Question mark;Exclamation point,Period,Punctuation,Easy,6,English,"A period ends a declarative sentence, which states a fact or opinion."
+What is a synonym for ‘big’?,Small;Large;Tiny;Short,Large,Vocabulary,Easy,6,English,A synonym is a word with the same or similar meaning. ‘Large’ means ‘big.’
+What is the subject in: ‘The cat sleeps’?,Sleeps;Cat;The;Bed,Cat,Grammar,Medium,7,English,"The subject is who or what performs the action. ‘Cat’ is the subject, as it sleeps."
+What is a metaphor?,Comparison using like;Direct comparison;Rhyming words;Repeating sounds,Direct comparison,Literary Devices,Medium,7,English,"A metaphor compares two things directly, like ‘The world is a stage,’ without using ‘like’ or ‘as.’"
+Which word is an adjective?,Quickly;Beautiful;Run;House,Beautiful,Grammar,Medium,7,English,"An adjective describes a noun. ‘Beautiful’ describes something, like a flower."
+What is the past tense of ‘go’?,Goes;Gone;Went;Going,Went,Grammar,Medium,7,English,"The past tense of ‘go’ is ‘went,’ used for actions that happened before now."
+What is an antonym for ‘happy’?,Joyful;Sad;Excited;Content,Sad,Vocabulary,Easy,6,English,An antonym is a word with the opposite meaning. ‘Sad’ is the opposite of ‘happy.’
+What is alliteration?,Repeating initial sounds;Comparing two things;Using like or as;Exaggeration,Repeating initial sounds,Literary Devices,Medium,8,English,"Alliteration is the repetition of initial sounds, like ‘Peter Piper picked.’"

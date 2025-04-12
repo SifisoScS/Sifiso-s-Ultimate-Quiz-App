@@ -1,6 +1,7 @@
 # src/quiz_app.py
 import streamlit as st
 import time
+import pandas as pd
 from src.utils.file_utils import load_questions_from_csv, load_user_progress, save_user_progress
 from src.utils.quiz_logic import shuffle_questions, check_answer
 from src.utils.leaderboard_utils import load_leaderboard, update_leaderboard
@@ -85,15 +86,16 @@ def main():
     if st.session_state.large_text:
         st.markdown("<style>.streamlit-container, .stRadio > label > div > p, .stButton > button { font-size: 20px !important; }</style>", unsafe_allow_html=True)
 
-    # Display progress and badges
+    # Display progress chart and badges
     if st.session_state.user_id:
         st.sidebar.subheader(f"Progress for {st.session_state.user_id}")
         user_data = user_progress.get(st.session_state.user_id, {})
-        for subject in ["Math", "Science", "Social Studies", "English"]:
-            total = user_data.get(subject, {}).get("total", 0)
-            correct = user_data.get(subject, {}).get("correct", 0)
-            accuracy = (correct / total * 100) if total > 0 else 0
-            st.sidebar.write(f"{subject}: {accuracy:.1f}% ({correct}/{total})")
+        data = {
+            s: (user_data.get(s, {}).get("correct", 0) / user_data.get(s, {}).get("total", 1) * 100)
+            if user_data.get(s, {}).get("total", 0) > 0 else 0.0
+            for s in ["Math", "Science", "Social Studies", "English"]
+        }
+        st.sidebar.bar_chart(pd.Series(data))
         badges = user_data.get("badges", [])
         if badges:
             st.sidebar.subheader("Badges")
