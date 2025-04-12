@@ -5,10 +5,15 @@ import pandas as pd
 from src.utils.file_utils import load_questions_from_csv, load_user_progress, save_user_progress
 from src.utils.quiz_logic import shuffle_questions, check_answer
 from src.utils.leaderboard_utils import load_leaderboard, update_leaderboard
-from src.utils.classroom_utils import create_class_session, add_student_score, load_class_sessions
 
 # Set page config
 st.set_page_config(page_title="Sifiso's Ultimate Quiz App", page_icon=":question:", layout="wide")
+
+# Load Bootstrap and Font Awesome
+st.markdown("""
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+""", unsafe_allow_html=True)
 
 # Load CSS
 def local_css(file_name):
@@ -17,7 +22,7 @@ def local_css(file_name):
 
 local_css("app/assets/style.css")
 
-# Cache question loading to reduce delay
+# Cache question loading
 @st.cache_data
 def cached_load_questions():
     return load_questions_from_csv("app/data/questions.csv")
@@ -44,49 +49,29 @@ def main():
         st.session_state.user_id = None
     if 'large_text' not in st.session_state:
         st.session_state.large_text = False
-    if 'teacher_mode' not in st.session_state:
-        st.session_state.teacher_mode = False
-    if 'session_code' not in st.session_state:
-        st.session_state.session_code = None
+    if 'leaderboard_updated' not in st.session_state:
+        st.session_state.leaderboard_updated = False
 
     # Load questions and progress
     questions = cached_load_questions()
     user_progress = load_user_progress()
 
-    # Sidebar: Mode selection
-    st.sidebar.title("Quiz Mode")
-    st.session_state.teacher_mode = st.sidebar.checkbox("Teacher Mode", value=st.session_state.teacher_mode)
+    # Welcome message
+    st.markdown("""
+    <div class="welcome-box">
+        <h3>Welcome to Sifiso's Quiz App!</h3>
+        <p>Enter your name to start quizzing and climb the leaderboard!</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Use forms to batch input submissions
-    if st.session_state.teacher_mode:
-        with st.sidebar.form(key="teacher_form"):
-            st.subheader("Teacher Setup")
-            teacher_name = st.text_input("Teacher Name:")
-            submit_teacher = st.form_submit_button("Create Session")
-            if submit_teacher:
-                if teacher_name:
-                    code = create_class_session(teacher_name)
-                    st.session_state.session_code = code
-                    st.success(f"Session created! Code: {code}")
-                else:
-                    st.error("Please enter a teacher name.")
-        session_code_input = st.sidebar.text_input("Enter Session Code:", key="teacher_session_code_input")
-        if session_code_input:
-            st.session_state.session_code = session_code_input
-    else:
-        with st.sidebar.form(key="student_form"):
-            st.subheader("Student Login")
-            user_id = st.text_input("Your Name:", key="user_id_input")
-            session_code_input = st.text_input("Join a Class Session (Optional):", key="student_session_code_input")
-            submit_student = st.form_submit_button("Submit")
-            if submit_student:
-                if user_id:
-                    st.session_state.user_id = user_id
-                if session_code_input:
-                    st.session_state.session_code = session_code_input
+    # Sidebar: Student login and settings
+    st.sidebar.markdown("<h2><i class='fas fa-user-graduate'></i> Get Started</h2>", unsafe_allow_html=True)
+    user_id = st.sidebar.text_input("Your Name:", key="user_id_input", placeholder="e.g., Alex")
+    if user_id:
+        st.session_state.user_id = user_id
 
-    # Initialize user progress if new user (student mode only)
-    if st.session_state.user_id and st.session_state.user_id not in user_progress and not st.session_state.teacher_mode:
+    # Initialize user progress if new user
+    if st.session_state.user_id and st.session_state.user_id not in user_progress:
         user_progress[st.session_state.user_id] = {
             "Math": {"correct": 0, "total": 0},
             "Science": {"correct": 0, "total": 0},
@@ -94,13 +79,19 @@ def main():
             "English": {"correct": 0, "total": 0},
             "badges": []
         }
-        save_user_progress(user_progress)
+        try:
+            save_user_progress(user_progress)
+        except Exception as e:
+            st.error(f"Failed to initialize progress: {e}")
 
     # Ensure existing users have badges key
-    if st.session_state.user_id and not st.session_state.teacher_mode:
+    if st.session_state.user_id:
         if "badges" not in user_progress.get(st.session_state.user_id, {}):
             user_progress[st.session_state.user_id]["badges"] = []
-            save_user_progress(user_progress)
+            try:
+                save_user_progress(user_progress)
+            except Exception as e:
+                st.error(f"Failed to update badges: {e}")
 
     # Extract unique filters
     categories = sorted({q["category"] for q in questions})
@@ -109,7 +100,7 @@ def main():
     subjects = ["All"] + sorted({q["subject"] for q in questions})
 
     # Sidebar settings
-    st.sidebar.title("Quiz Settings")
+    st.sidebar.markdown("<h2><i class='fas fa-cog'></i> Quiz Settings</h2>", unsafe_allow_html=True)
     new_selected_category = st.sidebar.selectbox("Choose a category", ["All"] + categories)
     new_selected_difficulty = st.sidebar.selectbox("Choose a difficulty level", difficulty_levels)
     new_selected_grade_level = st.sidebar.selectbox("Choose a grade level", grade_levels)
@@ -120,36 +111,26 @@ def main():
     if st.session_state.large_text:
         st.markdown("<style>.streamlit-container, .stRadio > label > div > p, .stButton > button { font-size: 20px !important; }</style>", unsafe_allow_html=True)
 
-    # Display progress chart and badges (student mode only)
-    if st.session_state.user_id and not st.session_state.teacher_mode:
-        st.sidebar.subheader(f"Progress for {st.session_state.user_id}")
+    # Display progress chart and badges
+    if st.session_state.user_id:
+        st.sidebar.markdown(f"<h4><i class='fas fa-chart-bar'></i> Progress for {st.session_state.user_id}</h4>", unsafe_allow_html=True)
         user_data = user_progress.get(st.session_state.user_id, {})
-        data = {
-            s: (user_data.get(s, {}).get("correct", 0) / user_data.get(s, {}).get("total", 1) * 100)
-            if user_data.get(s, {}).get("total", 0) > 0 else 0.0
-            for s in ["Math", "Science", "Social Studies", "English"]
-        }
-        st.sidebar.bar_chart(pd.Series(data))
+        data = {}
+        for s in ["Math", "Science", "Social Studies", "English"]:
+            subject_data = user_data.get(s, {"correct": 0, "total": 0})
+            total = subject_data.get("total", 0)
+            correct = subject_data.get("correct", 0)
+            data[s] = (correct / total * 100) if total > 0 else 0.0
+        if any(data.values()):
+            df = pd.Series(data).to_frame(name="Accuracy %")
+            st.sidebar.bar_chart(df, color="#FFC107")
+        else:
+            st.sidebar.markdown("<p class='text-muted'>No progress yet. Answer some questions!</p>", unsafe_allow_html=True)
         badges = user_data.get("badges", [])
         if badges:
-            st.sidebar.subheader("Badges")
+            st.sidebar.markdown("<h4><i class='fas fa-medal'></i> Badges</h4>", unsafe_allow_html=True)
             for badge in badges:
-                st.sidebar.write(f"🏅 {badge}")
-
-    # Display class session results (teacher mode)
-    if st.session_state.teacher_mode and st.session_state.session_code:
-        sessions = load_class_sessions()
-        if st.session_state.session_code in sessions:
-            st.sidebar.subheader(f"Session: {st.session_state.session_code}")
-            students = sessions[st.session_state.session_code]["students"]
-            if students:
-                st.sidebar.write("Student Scores:")
-                for student in students:
-                    st.sidebar.write(f"{student['name']}: {student['score']}")
-            else:
-                st.sidebar.write("No student scores yet.")
-        else:
-            st.sidebar.warning("Invalid session code.")
+                st.sidebar.markdown(f"<span class='badge badge-warning'>{badge}</span>", unsafe_allow_html=True)
 
     # Reset quiz if filters change
     if (new_selected_category != st.session_state.selected_category or
@@ -177,16 +158,12 @@ def main():
         filtered_questions = [q for q in filtered_questions if q["subject"] == st.session_state.selected_subject]
 
     # Main layout
-    st.title("Sifiso's Ultimate Quiz App")
+    st.markdown("<h1 class='text-center mb-4'>Sifiso's Ultimate Quiz App</h1>", unsafe_allow_html=True)
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        if not st.session_state.user_id and not st.session_state.teacher_mode:
+        if not st.session_state.user_id:
             st.info("Please enter your name in the sidebar to start the quiz!")
-        elif st.session_state.teacher_mode and not st.session_state.session_code:
-            st.info("Please create or enter a session code in the sidebar to proceed.")
-        elif st.session_state.teacher_mode:
-            st.info("Session active. Select quiz filters in the sidebar to start the quiz.")
         else:
             if not filtered_questions:
                 st.warning("No questions available for this selection. Try adjusting the filters.")
@@ -197,7 +174,7 @@ def main():
                     display_results(filtered_questions)
 
     with col2:
-        st.write("### Leaderboard")
+        st.markdown("<h3 class='leaderboard-title'><i class='fas fa-trophy'></i> Leaderboard</h3>", unsafe_allow_html=True)
         leaderboard = load_leaderboard()
         if leaderboard:
             leaderboard_with_icons = []
@@ -217,14 +194,15 @@ def main():
                 column_config={"position": "Position", "name": "Name", "score": "Score"},
                 use_container_width=True,
                 hide_index=True,
+                key=f"leaderboard_{st.session_state.leaderboard_updated}"
             )
         else:
-            st.write("No scores yet. Be the first to play!")
+            st.markdown("<p class='text-muted'>No scores yet. Be the first to play!</p>", unsafe_allow_html=True)
 
     st.sidebar.markdown(
         """
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="https://www.linkedin.com/in/sifisoshezi/" target="_blank">
+        <div class="text-center mt-4">
+            <a href="https://www.linkedin.com/in/sifisoshezi/" target="_blank" class="text-primary">
                 Powered by Sifiso
             </a>
         </div>
@@ -241,13 +219,25 @@ def display_question(filtered_questions, user_progress):
     if not st.session_state.question_order:
         st.session_state.question_order = shuffle_questions(list(range(len(filtered_questions))))
     question_data = filtered_questions[st.session_state.question_order[st.session_state.index]]
-    st.write(f"**Question {st.session_state.index + 1}:** {question_data['question']}")
-    st.write(f"**Category:** {question_data['category']} | **Difficulty:** {question_data['difficulty']} | "
-            f"**Grade:** {question_data['grade_level']} | **Subject:** {question_data['subject']}")
-    user_answer = st.radio("Choose your answer:", question_data['options'])
+    st.markdown(f"""
+    <div class="card question-card">
+        <div class="card-body">
+            <h5 class="card-title">Question {st.session_state.index + 1}</h5>
+            <p class="card-text">{question_data['question']}</p>
+            <p class="text-muted">
+                <strong>Category:</strong> {question_data['category']} | 
+                <strong>Difficulty:</strong> {question_data['difficulty']} | 
+                <strong>Grade:</strong> {question_data['grade_level']} | 
+                <strong>Subject:</strong> {question_data['subject']}
+            </p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    user_answer = st.radio("Choose your answer:", question_data['options'], key=f"answer_{st.session_state.index}")
 
     # Text-to-speech
-    if st.button("Read Aloud"):
+    st.markdown("<button class='btn btn-info btn-sm read-aloud-btn'><i class='fas fa-volume-up'></i> Read Aloud</button>", unsafe_allow_html=True)
+    if st.session_state.get(f"read_aloud_{st.session_state.index}", False):
         try:
             from gtts import gTTS
             import os
@@ -258,11 +248,14 @@ def display_question(filtered_questions, user_progress):
             os.remove(tts_file)
         except Exception as e:
             st.error(f"Failed to read aloud: {e}")
+    if st.button("Trigger Read Aloud", key=f"read_aloud_trigger_{st.session_state.index}"):
+        st.session_state[f"read_aloud_{st.session_state.index}"] = True
+        st.rerun()
 
     message_placeholder = st.empty()
     explanation_placeholder = st.empty()
 
-    if st.button("Submit"):
+    if st.button("Submit", type="primary", key=f"submit_{st.session_state.index}"):
         is_correct = check_answer(user_answer, question_data['answer'])
         st.session_state.answers.append({
             "question": question_data['question'],
@@ -277,15 +270,15 @@ def display_question(filtered_questions, user_progress):
         })
         if is_correct:
             st.session_state.score += 1
-            message_placeholder.success("Correct! 🎉")
+            message_placeholder.markdown("<div class='alert alert-success animate__animated animate__pulse'>Correct! 🎉</div>", unsafe_allow_html=True)
         else:
-            message_placeholder.error(f"Wrong! The correct answer is {question_data['answer']} 😞")
+            message_placeholder.markdown(f"<div class='alert alert-danger'>Wrong! The correct answer is {question_data['answer']} 😞</div>", unsafe_allow_html=True)
 
         with explanation_placeholder.expander("See Explanation"):
-            st.write(question_data['explanation'])
+            st.markdown(f"<p>{question_data['explanation']}</p>", unsafe_allow_html=True)
 
-        # Update user progress (student mode only)
-        if st.session_state.user_id and not st.session_state.teacher_mode:
+        # Update user progress
+        if st.session_state.user_id:
             subject = question_data['subject']
             user_progress[st.session_state.user_id][subject]["total"] += 1
             if is_correct:
@@ -295,10 +288,10 @@ def display_question(filtered_questions, user_progress):
             badges = user_progress[st.session_state.user_id].setdefault("badges", [])
             if user_progress[st.session_state.user_id][subject]["correct"] >= 5 and f"{subject} Star" not in badges:
                 badges.append(f"{subject} Star")
-                st.success(f"🎉 You earned the {subject} Star badge!")
+                st.markdown(f"<div class='alert alert-warning animate__animated animate__bounceIn'>🎉 You earned the {subject} Star badge!</div>", unsafe_allow_html=True)
             if user_progress[st.session_state.user_id][subject]["correct"] >= 10 and f"{subject} Master" not in badges:
                 badges.append(f"{subject} Master")
-                st.success(f"🎉 You earned the {subject} Master badge!")
+                st.markdown(f"<div class='alert alert-warning animate__animated animate__bounceIn'>🎉 You earned the {subject} Master badge!</div>", unsafe_allow_html=True)
 
             try:
                 save_user_progress(user_progress)
@@ -311,43 +304,64 @@ def display_question(filtered_questions, user_progress):
         st.rerun()
 
 def display_results(filtered_questions):
-    st.write(f"Quiz Completed! Your score: {st.session_state.score}/{len(filtered_questions)}")
+    st.markdown(f"""
+    <div class="card result-card">
+        <div class="card-body">
+            <h4 class="card-title">Quiz Completed!</h4>
+            <p class="card-text">Your score: <strong>{st.session_state.score}/{len(filtered_questions)}</strong></p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     accuracy = st.session_state.score / len(filtered_questions) if len(filtered_questions) > 0 else 0
     if accuracy > 0.8 and st.session_state.selected_difficulty != "Hard":
         next_difficulty = "Medium" if st.session_state.selected_difficulty == "Easy" else "Hard"
-        st.info(f"Great job! Your accuracy is {accuracy*100:.1f}%. Try {next_difficulty} difficulty for a challenge.")
+        st.markdown(f"""
+        <div class='alert alert-info'>
+            Great job! Your accuracy is {accuracy*100:.1f}%. Try {next_difficulty} difficulty for a challenge.
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.write("### Detailed Results:")
+    st.markdown("<h4>Detailed Results:</h4>", unsafe_allow_html=True)
     for i, answer in enumerate(st.session_state.answers):
-        st.write(f"**Question {i + 1}:** {answer['question']}")
-        st.write(f"**Category:** {answer['category']} | **Difficulty:** {answer['difficulty']} | "
-                f"**Grade:** {answer['grade_level']} | **Subject:** {answer['subject']}")
-        st.write(f"Your Answer: {answer['user_answer']} - {'Correct' if answer['is_correct'] else 'Wrong'}")
-        st.write(f"Correct Answer: {answer['correct_answer']}")
+        st.markdown(f"""
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6>Question {i + 1}: {answer['question']}</h6>
+                <p class="text-muted">
+                    <strong>Category:</strong> {answer['category']} | 
+                    <strong>Difficulty:</strong> {answer['difficulty']} | 
+                    <strong>Grade:</strong> {answer['grade_level']} | 
+                    <strong>Subject:</strong> {answer['subject']}
+                </p>
+                <p>Your Answer: {answer['user_answer']} - <strong>{'Correct' if answer['is_correct'] else 'Wrong'}</strong></p>
+                <p>Correct Answer: {answer['correct_answer']}</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         with st.expander("See Explanation"):
-            st.write(answer['explanation'])
-        st.write("---")
+            st.markdown(f"<p>{answer['explanation']}</p>", unsafe_allow_html=True)
 
     if st.session_state.score > 0:
-        name = st.text_input("Enter your name to save your score:")
-        if st.button("Save Score"):
+        name = st.text_input("Enter your name to save your score:", placeholder="e.g., Alex")
+        # Use markdown for green button styling
+        st.markdown('<button class="btn save-score-btn">Save Score</button>', unsafe_allow_html=True)
+        if st.button("Save Score", type="primary", key="save_score"):
             if name:
                 try:
-                    if st.session_state.session_code and add_student_score(st.session_state.session_code, name, st.session_state.score):
-                        st.success("Score saved to class session! 🎉")
-                    else:
-                        update_leaderboard(name, st.session_state.score)
-                        st.success("Score saved to leaderboard! 🎉")
+                    update_leaderboard(name, st.session_state.score)
+                    st.session_state.leaderboard_updated = not st.session_state.leaderboard_updated
+                    st.markdown("<div class='alert alert-success animate__animated animate__pulse'>Score saved to leaderboard! 🎉</div>", unsafe_allow_html=True)
                 except Exception as e:
                     st.error(f"Failed to save score: {e}")
             else:
                 st.error("Please enter your name.")
 
-    if st.button("Restart"):
+    if st.button("Restart", type="secondary"):
         st.session_state.score = 0
         st.session_state.index = 0
         st.session_state.answers = []
         st.session_state.question_order = []
+        st.session_state.leaderboard_updated = not st.session_state.leaderboard_updated
         st.rerun()
 
 if __name__ == "__main__":
