@@ -35,6 +35,8 @@ def main():
         st.session_state.selected_subject = "All"
     if 'user_id' not in st.session_state:
         st.session_state.user_id = None
+    if 'large_text' not in st.session_state:
+        st.session_state.large_text = False
 
     # Prompt for user ID
     if not st.session_state.user_id:
@@ -54,9 +56,16 @@ def main():
             "Math": {"correct": 0, "total": 0},
             "Science": {"correct": 0, "total": 0},
             "Social Studies": {"correct": 0, "total": 0},
-            "English": {"correct": 0, "total": 0}
+            "English": {"correct": 0, "total": 0},
+            "badges": []
         }
         save_user_progress(user_progress)
+
+    # Ensure existing users have badges key
+    if st.session_state.user_id:
+        if "badges" not in user_progress.get(st.session_state.user_id, {}):
+            user_progress[st.session_state.user_id]["badges"] = []
+            save_user_progress(user_progress)
 
     # Extract unique filters
     categories = sorted({q["category"] for q in questions})
@@ -64,21 +73,32 @@ def main():
     grade_levels = ["All"] + sorted({q["grade_level"] for q in questions}, key=int)
     subjects = ["All"] + sorted({q["subject"] for q in questions})
 
-    # Sidebar filters
+    # Sidebar settings
     st.sidebar.title("Quiz Settings")
     new_selected_category = st.sidebar.selectbox("Choose a category", ["All"] + categories)
     new_selected_difficulty = st.sidebar.selectbox("Choose a difficulty level", difficulty_levels)
     new_selected_grade_level = st.sidebar.selectbox("Choose a grade level", grade_levels)
     new_selected_subject = st.sidebar.selectbox("Choose a subject", subjects)
+    st.session_state.large_text = st.sidebar.checkbox("Large Text", value=st.session_state.large_text)
 
-    # Display progress
+    # Apply large text
+    if st.session_state.large_text:
+        st.markdown("<style>.streamlit-container, .stRadio > label > div > p, .stButton > button { font-size: 20px !important; }</style>", unsafe_allow_html=True)
+
+    # Display progress and badges
     if st.session_state.user_id:
         st.sidebar.subheader(f"Progress for {st.session_state.user_id}")
-        for subject in user_progress.get(st.session_state.user_id, {}):
-            total = user_progress[st.session_state.user_id][subject]["total"]
-            correct = user_progress[st.session_state.user_id][subject]["correct"]
+        user_data = user_progress.get(st.session_state.user_id, {})
+        for subject in ["Math", "Science", "Social Studies", "English"]:
+            total = user_data.get(subject, {}).get("total", 0)
+            correct = user_data.get(subject, {}).get("correct", 0)
             accuracy = (correct / total * 100) if total > 0 else 0
             st.sidebar.write(f"{subject}: {accuracy:.1f}% ({correct}/{total})")
+        badges = user_data.get("badges", [])
+        if badges:
+            st.sidebar.subheader("Badges")
+            for badge in badges:
+                st.sidebar.write(f"🏅 {badge}")
 
     # Reset quiz if filters change
     if (new_selected_category != st.session_state.selected_category or
@@ -138,7 +158,7 @@ def main():
                     "difficulty": question_data['difficulty'],
                     "grade_level": question_data['grade_level'],
                     "subject": question_data['subject'],
-                    "explanation": question_data['explanation']  # Store explanation
+                    "explanation": question_data['explanation']
                 })
                 if is_correct:
                     st.session_state.score += 1
@@ -155,9 +175,18 @@ def main():
                     user_progress[st.session_state.user_id][subject]["total"] += 1
                     if is_correct:
                         user_progress[st.session_state.user_id][subject]["correct"] += 1
+
+                    # Check for badges
+                    badges = user_progress[st.session_state.user_id].setdefault("badges", [])
+                    if user_progress[st.session_state.user_id][subject]["correct"] >= 5 and f"{subject} Star" not in badges:
+                        badges.append(f"{subject} Star")
+                        st.success(f"🎉 You earned the {subject} Star badge!")
+                    if user_progress[st.session_state.user_id][subject]["correct"] >= 10 and f"{subject} Master" not in badges:
+                        badges.append(f"{subject} Master")
+                        st.success(f"🎉 You earned the {subject} Master badge!")
+
                     try:
                         save_user_progress(user_progress)
-                        # st.write(f"Debug: Saved progress for {st.session_state.user_id}")  # Uncomment for debugging
                     except Exception as e:
                         st.error(f"Failed to save progress: {e}")
 
@@ -170,6 +199,12 @@ def main():
 
     def display_results():
         st.write(f"Quiz Completed! Your score: {st.session_state.score}/{len(filtered_questions)}")
+        # Check adaptive difficulty
+        accuracy = st.session_state.score / len(filtered_questions) if len(filtered_questions) > 0 else 0
+        if accuracy > 0.8 and st.session_state.selected_difficulty != "Hard":
+            next_difficulty = "Medium" if st.session_state.selected_difficulty == "Easy" else "Hard"
+            st.info(f"Great job! Your accuracy is {accuracy*100:.1f}%. Try {next_difficulty} difficulty for a challenge.")
+
         st.write("### Detailed Results:")
         for i, answer in enumerate(st.session_state.answers):
             st.write(f"**Question {i + 1}:** {answer['question']}")

@@ -16,7 +16,12 @@ def load_user_progress(file_path="app/data/user_progress.json"):
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                data = json.load(f)
+                # Ensure all users have badges key
+                for user in data.values():
+                    if "badges" not in user:
+                        user["badges"] = []
+                return data
         except Exception as e:
             print(f"Error loading user progress: {e}")
             return {}
