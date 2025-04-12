@@ -24,6 +24,7 @@ desktop.ini
 
 app/data/leaderboard.json
 app/data/user_progress.json
+scripts/
 
 # Dependency Management
 requirements.txt.lock

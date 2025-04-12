@@ -220,8 +220,11 @@ def main():
             name = st.text_input("Enter your name to save your score:")
             if st.button("Save Score"):
                 if name:
-                    update_leaderboard(name, st.session_state.score)
-                    st.success("Score saved! 🎉")
+                    try:
+                        update_leaderboard(name, st.session_state.score)
+                        st.success("Score saved! 🎉")
+                    except Exception as e:
+                        st.error(f"Failed to save score: {e}")
                 else:
                     st.error("Please enter your name.")
 
