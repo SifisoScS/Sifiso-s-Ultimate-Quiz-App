@@ -17,10 +17,28 @@ venv/
 *.db
 
 # System Files
+# OS
+.DS_Store
 Thumbs.db
 desktop.ini
 .idea/
 .vscode/
+
+# Build
+dist/
+build/
+
+# React
+*.local
+.cache/
+.next/
+out/
+coverage/
+
+# Optional: Ignore backend temp files
+frontend/.env
+backend/.env
+backend/__pycache__/
 
 app/data/leaderboard.json
 app/data/user_progress.json
@@ -28,3 +46,9 @@ scripts/
 
 # Dependency Management
 requirements.txt.lock
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
