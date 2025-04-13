@@ -1,0 +1,18 @@
+[
+    {
+      "question": "What is the capital of South Africa?",
+      "options": ["Cape Town", "Johannesburg", "Pretoria", "Durban"],
+      "answer": "Pretoria"
+    },
+    {
+      "question": "Which element has the symbol 'O'?",
+      "options": ["Oxygen", "Gold", "Osmium", "Hydrogen"],
+      "answer": "Oxygen"
+    },
+    {
+      "question": "What year did Nelson Mandela become President?",
+      "options": ["1990", "1994", "2000", "1985"],
+      "answer": "1994"
+    }
+  ]
+  
