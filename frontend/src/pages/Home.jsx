@@ -1,22 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Progress } from "../components/ui/progress";
-import quizData from "../data/questions.json";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../components/ui/select";
 import { Globe, Target, User, BarChart, Trophy } from "lucide-react";
 
-const questions = quizData;
-
 export default function Home() {
+  const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [name, setName] = useState("");
+  const [category, setCategory] = useState("all");
+  const [difficulty, setDifficulty] = useState("all");
+  const [leaderboard, setLeaderboard] = useState([]);
 
-  const currentQuestion = questions[currentQuestionIndex];
+  useEffect(() => {
+    fetchQuestions();
+  }, [category, difficulty]);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [showResults]);
+
+  const fetchQuestions = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/questions?category=${category}&difficulty=${difficulty}`);
+      const data = await res.json();
+      setQuestions(data);
+      setCurrentQuestionIndex(0);
+      setShowResults(false);
+      setScore(0);
+      setSelectedAnswer(null);
+    } catch (err) {
+      console.error("Error fetching questions:", err);
+    }
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/leaderboard");
+      const data = await res.json();
+      setLeaderboard(data);
+    } catch (err) {
+      console.error("Error fetching leaderboard:", err);
+    }
+  };
+
+  const submitToLeaderboard = async () => {
+    if (!name) return;
+    try {
+      await fetch("http://localhost:5000/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, score }),
+      });
+    } catch (err) {
+      console.error("Failed to submit score", err);
+    }
+  };
+
+  const currentQuestion = questions[currentQuestionIndex] || {};
 
   const handleSubmit = () => {
     if (selectedAnswer === currentQuestion.answer) {
@@ -29,14 +75,12 @@ export default function Home() {
       setSelectedAnswer(null);
     } else {
       setShowResults(true);
+      submitToLeaderboard();
     }
   };
 
   const handleRestart = () => {
-    setCurrentQuestionIndex(0);
-    setScore(0);
-    setSelectedAnswer(null);
-    setShowResults(false);
+    fetchQuestions();
   };
 
   return (
@@ -49,22 +93,28 @@ export default function Home() {
       </p>
 
       <div className="flex flex-wrap gap-4 mb-6">
-        <Select>
+        <Select onValueChange={(val) => setCategory(val)}>
           <SelectTrigger className="w-[200px]">
             <Globe className="mr-2 h-4 w-4 text-gray-500" />
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="Geography">Geography</SelectItem>
+            <SelectItem value="Science">Science</SelectItem>
+            <SelectItem value="History">History</SelectItem>
           </SelectContent>
         </Select>
-        <Select>
+        <Select onValueChange={(val) => setDifficulty(val)}>
           <SelectTrigger className="w-[200px]">
             <Target className="mr-2 h-4 w-4 text-gray-500" />
             <SelectValue placeholder="All Difficulties" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Difficulties</SelectItem>
+            <SelectItem value="easy">Easy</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="hard">Hard</SelectItem>
           </SelectContent>
         </Select>
         <Input
@@ -77,12 +127,14 @@ export default function Home() {
 
       <Card className="w-full max-w-2xl mb-6">
         <CardContent className="p-6">
-          {!showResults ? (
+          {questions.length === 0 ? (
+            <p className="text-center text-gray-500">Loading questions...</p>
+          ) : !showResults ? (
             <>
               <h2 className="text-xl font-semibold mb-4">
                 Question {currentQuestionIndex + 1}: {currentQuestion.question}
               </h2>
-              {currentQuestion.options.map((option) => (
+              {currentQuestion.options?.map((option) => (
                 <Button
                   key={option}
                   variant="outline"
@@ -117,6 +169,18 @@ export default function Home() {
               <Button onClick={handleRestart} className="mt-4">
                 Try Again
               </Button>
+
+              <div className="mt-8 text-left">
+                <h3 className="text-xl font-semibold mb-2">🏆 Leaderboard</h3>
+                <ul className="space-y-1">
+                  {leaderboard.map((entry, index) => (
+                    <li key={index} className="flex justify-between">
+                      <span>{index + 1}. {entry.name}</span>
+                      <span>{entry.score}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </CardContent>
