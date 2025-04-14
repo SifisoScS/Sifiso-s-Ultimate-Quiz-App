@@ -18,36 +18,38 @@ export default function Home() {
   const [leaderboard, setLeaderboard] = useState([]);
 
   useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/questions?category=${category}&difficulty=${difficulty}`);
+        const data = await res.json();
+        setQuestions(data);
+        setCurrentQuestionIndex(0);
+        setShowResults(false);
+        setScore(0);
+        setSelectedAnswer(null);
+      } catch (err) {
+        console.error("Error fetching questions:", err);
+      }
+    };
+
     fetchQuestions();
   }, [category, difficulty]);
 
   useEffect(() => {
-    fetchLeaderboard();
+    const fetchLeaderboard = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/leaderboard");
+        const data = await res.json();
+        setLeaderboard(data);
+      } catch (err) {
+        console.error("Error fetching leaderboard:", err);
+      }
+    };
+
+    if (showResults) {
+      fetchLeaderboard();
+    }
   }, [showResults]);
-
-  const fetchQuestions = async () => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/questions?category=${category}&difficulty=${difficulty}`);
-      const data = await res.json();
-      setQuestions(data);
-      setCurrentQuestionIndex(0);
-      setShowResults(false);
-      setScore(0);
-      setSelectedAnswer(null);
-    } catch (err) {
-      console.error("Error fetching questions:", err);
-    }
-  };
-
-  const fetchLeaderboard = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/leaderboard");
-      const data = await res.json();
-      setLeaderboard(data);
-    } catch (err) {
-      console.error("Error fetching leaderboard:", err);
-    }
-  };
 
   const submitToLeaderboard = async () => {
     if (!name) return;
@@ -80,7 +82,13 @@ export default function Home() {
   };
 
   const handleRestart = () => {
-    fetchQuestions();
+    setCategory("all");
+    setDifficulty("all");
+    setName("");
+    setScore(0);
+    setSelectedAnswer(null);
+    setShowResults(false);
+    setCurrentQuestionIndex(0);
   };
 
   return (
@@ -93,7 +101,7 @@ export default function Home() {
       </p>
 
       <div className="flex flex-wrap gap-4 mb-6">
-        <Select onValueChange={(val) => setCategory(val)}>
+        <Select value={category} onValueChange={(val) => setCategory(val)}>
           <SelectTrigger className="w-[200px]">
             <Globe className="mr-2 h-4 w-4 text-gray-500" />
             <SelectValue placeholder="All Categories" />
@@ -105,7 +113,7 @@ export default function Home() {
             <SelectItem value="History">History</SelectItem>
           </SelectContent>
         </Select>
-        <Select onValueChange={(val) => setDifficulty(val)}>
+        <Select value={difficulty} onValueChange={(val) => setDifficulty(val)}>
           <SelectTrigger className="w-[200px]">
             <Target className="mr-2 h-4 w-4 text-gray-500" />
             <SelectValue placeholder="All Difficulties" />
