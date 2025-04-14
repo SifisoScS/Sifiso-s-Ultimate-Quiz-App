@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export function Select({ children, className = "", value, onChange }) {
+export function Select({ children, className = "", value, onValueChange }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -14,7 +14,8 @@ export function Select({ children, className = "", value, onChange }) {
         }
         if (child.type === SelectContent && isOpen) {
           return React.cloneElement(child, {
-            onClose: () => setIsOpen(false)
+            onClose: () => setIsOpen(false),
+            onValueChange // Pass onValueChange to SelectContent
           });
         }
         return null;
@@ -50,7 +51,7 @@ export function SelectValue({ placeholder, value }) {
   return <span className={value ? "" : "text-gray-500"}>{value || placeholder}</span>;
 }
 
-export function SelectContent({ children, className = "", onClose }) {
+export function SelectContent({ children, className = "", onClose, onValueChange }) {
   return (
     <div 
       className={`
@@ -61,7 +62,10 @@ export function SelectContent({ children, className = "", onClose }) {
       {React.Children.map(children, child => {
         if (child.type === SelectItem) {
           return React.cloneElement(child, {
-            onSelect: onClose
+            onSelect: (val) => {
+              onClose();
+              if (onValueChange) onValueChange(val); // Pass the selected value to onValueChange
+            }
           });
         }
         return child;
@@ -75,7 +79,7 @@ export function SelectItem({ value, children, onSelect }) {
     <div 
       className="px-3 py-2 cursor-pointer hover:bg-blue-50"
       onClick={() => {
-        if (onSelect) onSelect();
+        if (onSelect) onSelect(value); // Pass the value to onSelect
       }}
     >
       {children}
