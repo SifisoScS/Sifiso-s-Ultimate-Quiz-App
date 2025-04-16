@@ -25,6 +25,14 @@ import {
   Bookmark
 } from "lucide-react";
 
+import { 
+  fetchQuestions, 
+  fetchDailyChallenge, 
+  submitToLeaderboard, 
+  fetchLeaderboard, 
+  fetchUserStats 
+} from '../services/quizService';
+
 export default function Home() {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -49,7 +57,7 @@ export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [themes, setThemes] = useState(["light"]);
   const [selectedTheme, setSelectedTheme] = useState("light");
-  const [isLoading, setIsLoading] = useState(false); // Added loading state
+  const [isLoading, setIsLoading] = useState(false);
   const timerRef = useRef(null);
 
   const languages = [
@@ -80,8 +88,8 @@ export default function Home() {
       setUserStats(JSON.parse(savedStats));
     }
 
-    // Fetch daily challenge
-    fetchDailyChallenge();
+    // Load daily challenge
+    loadDailyChallenge();
   }, []);
 
   useEffect(() => {
@@ -93,22 +101,11 @@ export default function Home() {
     return () => clearTimeout(timerRef.current);
   }, [timeLeft, timerActive]);
 
-  const fetchQuestions = async () => {
+  const loadQuestions = async () => {
     setIsLoading(true);
     try {
-      let url = `http://localhost:5000/api/questions?lang=${selectedLanguage}`;
-      if (category !== "all") url += `&category=${category}`;
-      if (difficulty !== "all") url += `&difficulty=${difficulty}`;
-
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const data = await res.json();
-      if (!Array.isArray(data)) {
-        throw new Error("Invalid data format received");
-      }
-      setQuestions(data);
+      const questions = await fetchQuestions(selectedLanguage, category, difficulty);
+      setQuestions(questions);
       setCurrentQuestionIndex(0);
       setShowResults(false);
       setScore(0);
@@ -116,88 +113,62 @@ export default function Home() {
       setStreak(0);
       setTimerActive(false);
       setTimeLeft(15);
-    } catch (err) {
-      console.error("Error fetching questions:", err);
-      // Fallback questions in case API fails
-      setQuestions([
-        {
-          question: "Sample question 1",
-          options: ["Option 1", "Option 2", "Option 3", "Option 4"],
-          answer: "Option 1",
-          category: "General",
-          difficulty: "easy",
-          explanation: "This is a sample explanation"
-        },
-        {
-          question: "Sample question 2",
-          options: ["Option A", "Option B", "Option C", "Option D"],
-          answer: "Option C",
-          category: "General",
-          difficulty: "medium",
-          explanation: "Another sample explanation"
-        }
-      ]);
+    } catch (error) {
+      console.error("Error loading questions:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fetchLeaderboard = async () => {
+  const loadLeaderboard = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/leaderboard?country=${country}`);
-      const data = await res.json();
+      const data = await fetchLeaderboard(country);
       setLeaderboard(data.leaderboard || []);
       setUserRank(data.userRank || null);
-    } catch (err) {
-      console.error("Error fetching leaderboard:", err);
+    } catch (error) {
+      console.error("Error loading leaderboard:", error);
       setLeaderboard([]);
     }
   };
 
-  const fetchDailyChallenge = async () => {
+  const loadDailyChallenge = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/daily-challenge");
-      const data = await res.json();
-      setDailyChallenge(data);
-    } catch (err) {
-      console.error("Error fetching daily challenge:", err);
+      const challenge = await fetchDailyChallenge();
+      setDailyChallenge(challenge);
+    } catch (error) {
+      console.error("Error loading daily challenge:", error);
       setDailyChallenge(null);
     }
   };
 
-  const fetchUserStats = async () => {
+  const loadUserStats = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/user-stats");
-      const data = await res.json();
-      setUserStats(data);
-      localStorage.setItem("quizUserStats", JSON.stringify(data));
-    } catch (err) {
-      console.error("Error fetching user stats:", err);
+      const stats = await fetchUserStats(name); // Using name as user identifier
+      setUserStats(stats);
+      if (stats) {
+        localStorage.setItem("quizUserStats", JSON.stringify(stats));
+      }
+    } catch (error) {
+      console.error("Error loading user stats:", error);
       setUserStats(null);
     }
   };
 
-  const submitToLeaderboard = async () => {
+  const submitScore = async () => {
     if (!name) return;
     try {
-      await fetch("http://localhost:5000/api/leaderboard", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name,
-          score,
-          country,
-          category,
-          difficulty,
-          timeTaken: (questions.length * 15 - timeLeft) / questions.length
-        })
+      await submitToLeaderboard({
+        name,
+        score,
+        country,
+        category,
+        difficulty,
+        timeTaken: (questions.length * 15 - timeLeft) / questions.length
       });
-      fetchLeaderboard();
-      fetchUserStats();
-    } catch (err) {
-      console.error("Failed to submit score", err);
+      await loadLeaderboard();
+      await loadUserStats();
+    } catch (error) {
+      console.error("Failed to submit score", error);
     }
   };
 
@@ -228,7 +199,7 @@ export default function Home() {
         setShowExplanation(false);
       } else {
         setShowResults(true);
-        submitToLeaderboard();
+        submitScore();
       }
     }, 2000);
   };
@@ -253,7 +224,7 @@ export default function Home() {
       return;
     }
     setQuizStarted(true);
-    fetchQuestions();
+    loadQuestions();
     setTimerActive(true);
   };
 
@@ -378,7 +349,15 @@ export default function Home() {
                 </span>
               </div>
               <p className="mb-4">{dailyChallenge.description}</p>
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  setCategory(dailyChallenge.category || "all");
+                  setDifficulty(dailyChallenge.difficulty || "all");
+                  startQuiz();
+                }}
+              >
                 Join Challenge
               </Button>
             </Card>
@@ -406,7 +385,7 @@ export default function Home() {
             </Card>
           )}
         </div>
-      ) : isLoading ? ( // Added loading state
+      ) : isLoading ? (
         <div className="w-full max-w-2xl flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>

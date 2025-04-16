@@ -1,147 +1,110 @@
-import React, { useState, useEffect, useRef } from "react";
+import * as React from "react";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "../../lib/utils";
 
-export function Select({ children, className = "", value, onValueChange, searchable = false }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const selectRef = useRef(null);
+const Select = SelectPrimitive.Root;
+const SelectGroup = SelectPrimitive.Group;
+const SelectValue = SelectPrimitive.Value;
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const filteredChildren = React.Children.map(children, child => {
-    if (child.type === SelectContent) {
-      return React.cloneElement(child, {
-        children: React.Children.map(child.props.children, item => {
-          if (item.type === SelectItem && searchable && searchTerm) {
-            const itemText = item.props.children.toLowerCase();
-            return itemText.includes(searchTerm.toLowerCase()) ? item : null;
-          }
-          return item;
-        })
-      });
-    }
-    return child;
-  });
-
-  return (
-    <div className={`relative ${className}`} ref={selectRef}>
-      {React.Children.map(filteredChildren, child => {
-        if (child.type === SelectTrigger) {
-          return React.cloneElement(child, {
-            onClick: () => setIsOpen(!isOpen),
-            isOpen,
-            hasValue: !!value
-          });
-        }
-        if (child.type === SelectContent && isOpen) {
-          return React.cloneElement(child, {
-            onClose: () => setIsOpen(false),
-            onValueChange,
-            searchable,
-            searchTerm,
-            onSearchChange: (e) => setSearchTerm(e.target.value)
-          });
-        }
-        return null;
-      })}
-    </div>
-  );
-}
-
-export function SelectTrigger({ children, className = "", isOpen, onClick, hasValue }) {
-  return (
-    <div
-      className={`w-full px-3 py-2 border rounded-lg bg-white flex items-center justify-between cursor-pointer transition-all ${
-        hasValue ? "border-blue-500" : "border-gray-300 hover:border-gray-400"
-      } ${className}`}
-      onClick={onClick}
+const SelectTrigger = React.forwardRef(
+  ({ className, children, ...props }, ref) => (
+    <SelectPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      {...props}
     >
       {children}
-      <svg
-        className={`h-5 w-5 transition-transform ${isOpen ? "rotate-180" : ""} ${
-          hasValue ? "text-blue-500" : "text-gray-400"
-        }`}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
+      <SelectPrimitive.Icon asChild>
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+  )
+);
+SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
+
+const SelectContent = React.forwardRef(
+  ({ className, children, position = "popper", ...props }, ref) => (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Content
+        ref={ref}
+        className={cn(
+          "relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+          position === "popper" &&
+            "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+          className
+        )}
+        position={position}
+        {...props}
       >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-  );
-}
+        <SelectPrimitive.Viewport
+          className={cn(
+            "p-1",
+            position === "popper" &&
+              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          )}
+        >
+          {children}
+        </SelectPrimitive.Viewport>
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
+  )
+);
+SelectContent.displayName = SelectPrimitive.Content.displayName;
 
-export function SelectValue({ placeholder, value }) {
-  return (
-    <span className={`truncate ${value ? "text-gray-800" : "text-gray-500"}`}>
-      {value || placeholder}
-    </span>
-  );
-}
+const SelectLabel = React.forwardRef(
+  ({ className, ...props }, ref) => (
+    <SelectPrimitive.Label
+      ref={ref}
+      className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold", className)}
+      {...props}
+    />
+  )
+);
+SelectLabel.displayName = SelectPrimitive.Label.displayName;
 
-export function SelectContent({
-  children,
-  className = "",
-  onClose,
-  onValueChange,
-  searchable,
-  searchTerm,
-  onSearchChange
-}) {
-  return (
-    <div
-      className={`absolute z-20 mt-1 w-full bg-white shadow-lg rounded-lg border border-gray-200 py-1 max-h-60 overflow-auto ${className}`}
-    >
-      {searchable && (
-        <div className="sticky top-0 bg-white p-2 border-b">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full px-2 py-1 border rounded text-sm"
-            value={searchTerm}
-            onChange={onSearchChange}
-            autoFocus
-          />
-        </div>
+const SelectItem = React.forwardRef(
+  ({ className, children, ...props }, ref) => (
+    <SelectPrimitive.Item
+      ref={ref}
+      className={cn(
+        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        className
       )}
-      {React.Children.count(children) > 0 ? (
-        React.Children.map(children, child => {
-          if (child.type === SelectItem) {
-            return React.cloneElement(child, {
-              onSelect: (val) => {
-                onClose();
-                if (onValueChange) onValueChange(val);
-              }
-            });
-          }
-          return child;
-        })
-      ) : (
-        <div className="px-3 py-2 text-gray-500 text-sm">No options found</div>
-      )}
-    </div>
-  );
-}
-
-export function SelectItem({ value, children, onSelect, className = "" }) {
-  return (
-    <div
-      className={`px-3 py-2 cursor-pointer hover:bg-blue-50 flex items-center ${className}`}
-      onClick={() => {
-        if (onSelect) onSelect(value);
-      }}
+      {...props}
     >
-      {children}
-    </div>
-  );
-}
+      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <SelectPrimitive.ItemIndicator>
+          <Check className="h-4 w-4" />
+        </SelectPrimitive.ItemIndicator>
+      </span>
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
+  )
+);
+SelectItem.displayName = SelectPrimitive.Item.displayName;
+
+const SelectSeparator = React.forwardRef(
+  ({ className, ...props }, ref) => (
+    <SelectPrimitive.Separator
+      ref={ref}
+      className={cn("-mx-1 my-1 h-px bg-muted", className)}
+      {...props}
+    />
+  )
+);
+SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
+
+export {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+};
