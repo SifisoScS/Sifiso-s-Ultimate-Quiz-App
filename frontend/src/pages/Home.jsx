@@ -49,6 +49,7 @@ export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [themes, setThemes] = useState(["light"]);
   const [selectedTheme, setSelectedTheme] = useState("light");
+  const [isLoading, setIsLoading] = useState(false); // Added loading state
   const timerRef = useRef(null);
 
   const languages = [
@@ -93,11 +94,20 @@ export default function Home() {
   }, [timeLeft, timerActive]);
 
   const fetchQuestions = async () => {
+    setIsLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/questions?category=${category}&difficulty=${difficulty}&lang=${selectedLanguage}`
-      );
+      let url = `http://localhost:5000/api/questions?lang=${selectedLanguage}`;
+      if (category !== "all") url += `&category=${category}`;
+      if (difficulty !== "all") url += `&difficulty=${difficulty}`;
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data format received");
+      }
       setQuestions(data);
       setCurrentQuestionIndex(0);
       setShowResults(false);
@@ -108,6 +118,27 @@ export default function Home() {
       setTimeLeft(15);
     } catch (err) {
       console.error("Error fetching questions:", err);
+      // Fallback questions in case API fails
+      setQuestions([
+        {
+          question: "Sample question 1",
+          options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+          answer: "Option 1",
+          category: "General",
+          difficulty: "easy",
+          explanation: "This is a sample explanation"
+        },
+        {
+          question: "Sample question 2",
+          options: ["Option A", "Option B", "Option C", "Option D"],
+          answer: "Option C",
+          category: "General",
+          difficulty: "medium",
+          explanation: "Another sample explanation"
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,10 +146,11 @@ export default function Home() {
     try {
       const res = await fetch(`http://localhost:5000/api/leaderboard?country=${country}`);
       const data = await res.json();
-      setLeaderboard(data.leaderboard);
-      setUserRank(data.userRank);
+      setLeaderboard(data.leaderboard || []);
+      setUserRank(data.userRank || null);
     } catch (err) {
       console.error("Error fetching leaderboard:", err);
+      setLeaderboard([]);
     }
   };
 
@@ -129,6 +161,7 @@ export default function Home() {
       setDailyChallenge(data);
     } catch (err) {
       console.error("Error fetching daily challenge:", err);
+      setDailyChallenge(null);
     }
   };
 
@@ -140,6 +173,7 @@ export default function Home() {
       localStorage.setItem("quizUserStats", JSON.stringify(data));
     } catch (err) {
       console.error("Error fetching user stats:", err);
+      setUserStats(null);
     }
   };
 
@@ -372,6 +406,10 @@ export default function Home() {
             </Card>
           )}
         </div>
+      ) : isLoading ? ( // Added loading state
+        <div className="w-full max-w-2xl flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
       ) : !showResults ? (
         <div className="w-full max-w-2xl space-y-4">
           <div className="flex justify-between items-center">
@@ -402,7 +440,7 @@ export default function Home() {
           <Card>
             <CardContent className="p-6">
               {questions.length === 0 ? (
-                <p className="text-center text-gray-500">Loading questions...</p>
+                <p className="text-center text-gray-500">No questions available. Please try again later.</p>
               ) : (
                 <>
                   <div className="flex justify-between items-start mb-4">
