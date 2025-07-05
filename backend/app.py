@@ -57,5 +57,15 @@ def get_global_stats():
         stats[country] = stats.get(country, 0) + entry["score"]
     return jsonify(stats)
 
+@app.route("/")
+def index():
+    return "🎉 Sifiso’s Ultimate Quiz App API is running! Go to /api/questions"
+
+@app.route("/api/debug-questions")
+def debug_questions():
+    questions = load_questions_from_csv("app/data/questions.csv")
+    print("Loaded questions:", questions)
+    return "Check console"
+
 if __name__ == "__main__":
     app.run(debug=True)
