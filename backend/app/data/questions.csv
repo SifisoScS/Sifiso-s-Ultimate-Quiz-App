@@ -12,7 +12,6 @@ question,options,answer,category,difficulty,grade_level,subject,explanation
 "Solve for x: x + 5 = 8","x=2;x=3;x=4;x=5","x=3","Algebra","Easy","7","Math","To solve x + 5 = 8, subtract 5 from both sides: x = 8 - 5 = 3."
 "What is the area of a rectangle with length 4 and width 3?","10;12;14;16","12","Geometry","Medium","7","Math","The area of a rectangle is length × width. Here, 4 × 3 = 12 square units."
 "What is 15 - 7?","6;7;8;9","8","Algebra","Easy","6","Math","Subtracting 7 from 15 leaves 8, as 15 units minus 7 units equals 8 units."
-"Solve for y: 3y = 9","y=2;y=3;y=4;y=5","y=3","Algebra","Medium","8","Math","To solve 3y = 9, divide both sides by 3: y = 9 ÷ 3 = 3."What is 8 + 7?,14;15;16;17,15,Algebra,Easy,6,Math,"Adding 8 and 7 gives 15, as 8 units plus 7 units equals 15 units."
 What is 20 - 9?,10;11;12;13,11,Algebra,Easy,6,Math,"Subtracting 9 from 20 leaves 11, as 20 units minus 9 units equals 11 units."
 What is 6 × 3?,15;18;21;24,18,Algebra,Easy,6,Math,"Multiplying 6 by 3 means adding 6 three times (6 + 6 + 6), which equals 18."
 What is 16 ÷ 4?,3;4;5;6,4,Algebra,Easy,6,Math,"Dividing 16 by 4 means finding how many groups of 4 fit into 16, which is 4 groups."

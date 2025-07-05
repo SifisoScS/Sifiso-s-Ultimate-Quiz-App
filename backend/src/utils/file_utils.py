@@ -34,3 +34,10 @@ def save_user_progress(progress, file_path="app/data/user_progress.json"):
     except Exception as e:
         print(f"Error saving user progress: {e}")
         raise
+    
+def save_question_to_csv(question, file_path="app/data/questions.csv"):
+    import csv
+    with open(file_path, mode='a', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(question)
+    
