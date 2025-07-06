@@ -1,0 +1,1166 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Global Buzz Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.4.0/dist/umd/lucide.min.js"></script>
+  <style>
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center min-h-screen p-4 bg-blue-50">
+  <div class="flex justify-between w-full max-w-6xl mb-6 flex-wrap gap-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="globe-2" class="text-green-600"></i>
+      <h1 class="text-2xl font-bold">Global Buzz Quiz</h1>
+    </div>
+    <div class="flex gap-4 flex-wrap">
+      <div class="relative">
+        <select
+          id="languageSelect"
+          class="w-[120px] border rounded-md pl-8 pr-4 py-2"
+          aria-label="Select Language"
+        >
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="ja">日本語</option>
+        </select>
+        <i
+          data-lucide="globe"
+          class="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4"
+        ></i>
+      </div>
+      <div class="relative">
+        <select
+          id="themeSelect"
+          class="w-[120px] border rounded-md pl-8 pr-4 py-2"
+          aria-label="Select Theme"
+        >
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="system">System</option>
+        </select>
+        <i
+          data-lucide="sparkles"
+          class="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4"
+        ></i>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainContent" class="w-full max-w-2xl space-y-6">
+    <!-- Start Screen -->
+    <div id="startScreen" class="space-y-6">
+      <div class="p-6 bg-white rounded-lg shadow">
+        <h2
+          class="text-2xl font-bold mb-4 flex items-center gap-2"
+          aria-label="Welcome to Global Buzz Quiz"
+        >
+          <i data-lucide="zap" class="text-yellow-500"></i> Welcome to Global Buzz Quiz
+        </h2>
+        <p class="mb-6">
+          Test your knowledge against players worldwide in this ultimate quiz
+          challenge. Compete in real-time, climb the leaderboards, and earn
+          achievements!
+        </p>
+        <div class="space-y-4">
+          <input
+            id="nameInput"
+            type="text"
+            placeholder="Enter Your Name"
+            class="w-full border rounded-md px-4 py-2"
+            aria-label="Enter Your Name"
+          />
+          <div class="relative">
+            <select
+              id="countrySelect"
+              class="w-full border rounded-md pl-8 pr-4 py-2"
+              aria-label="Select Your Country"
+            >
+              <option value="">Select Your Country</option>
+            </select>
+            <i
+              data-lucide="flag"
+              class="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4"
+            ></i>
+          </div>
+          <div class="flex gap-4 flex-col sm:flex-row">
+            <div class="flex-1 relative">
+              <select
+                id="categorySelect"
+                class="w-full border rounded-md pl-8 pr-4 py-2"
+                aria-label="Select Category"
+              >
+                <option value="all">All Categories</option>
+                <option value="General Knowledge">🌍 General Knowledge</option>
+                <option value="History">History</option>
+                <option value="Politics">Politics</option>
+                <option value="Culture & Traditions">Culture & Traditions</option>
+                <option value="Technology & Inventions">Technology & Inventions</option>
+                <option value="Literature">Literature</option>
+
+                <option value="Science & Nature">🧪 Science & Nature</option>
+                <option value="Biology">Biology</option>
+                <option value="Chemistry">Chemistry</option>
+                <option value="Physics">Physics</option>
+                <option value="Space & Astronomy">Space & Astronomy</option>
+                <option value="Earth & Environment">Earth & Environment</option>
+
+                <option value="Geography">🗺️ Geography</option>
+                <option value="World Capitals">World Capitals</option>
+                <option value="Flags & Countries">Flags & Countries</option>
+                <option value="Natural Wonders">Natural Wonders</option>
+                <option value="Continents & Oceans">Continents & Oceans</option>
+                <option value="Cities">Cities</option>
+
+                <option value="Entertainment">🎬 Entertainment</option>
+                <option value="Music">Music</option>
+                <option value="Movies">Movies</option>
+                <option value="TV & Celebrities">TV & Celebrities</option>
+                <option value="Gaming">Gaming</option>
+                <option value="Books & Authors">Books & Authors</option>
+
+                <option value="Sports">⚽ Sports</option>
+                <option value="Football">Football</option>
+                <option value="Olympics">Olympics</option>
+                <option value="General Sports">General Sports</option>
+                <option value="Sports Records">Sports Records</option>
+              </select>
+              <i
+                data-lucide="bookmark"
+                class="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4"
+              ></i>
+            </div>
+            <div class="flex-1 relative">
+              <select
+                id="difficultySelect"
+                class="w-full border rounded-md pl-8 pr-4 py-2"
+                aria-label="Select Difficulty"
+              >
+                <option value="all">All Difficulties</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <i
+                data-lucide="target"
+                class="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4"
+              ></i>
+            </div>
+          </div>
+          <button
+            id="startQuizBtn"
+            class="w-full bg-green-600 hover:bg-green-700 text-white rounded-md py-2"
+            aria-label="Start Quiz"
+          >
+            Start Quiz
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="dailyChallenge"
+        class="p-6 bg-white rounded-lg shadow hidden"
+        aria-live="polite"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h3
+            class="text-xl font-semibold flex items-center gap-2"
+            aria-label="Daily Challenge"
+          >
+            <i data-lucide="award" class="text-purple-500"></i> Daily Challenge
+          </h3>
+          <span
+            id="challengeDate"
+            class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded"
+          ></span>
+        </div>
+        <p id="challengeDescription" class="mb-4"></p>
+        <button
+          id="joinChallengeBtn"
+          class="w-full border border-gray-300 rounded-md py-2 hover:bg-gray-50"
+          aria-label="Join Daily Challenge"
+        >
+          Join Challenge
+        </button>
+      </div>
+
+      <div
+        id="userStats"
+        class="p-6 bg-white rounded-lg shadow hidden"
+        aria-live="polite"
+      >
+        <h3
+          class="text-xl font-semibold mb-4 flex items-center gap-2"
+          aria-label="Your Stats"
+        >
+          <i data-lucide="user" class="text-blue-500"></i> Your Stats
+        </h3>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div id="totalQuizzes" class="text-2xl font-bold"></div>
+            <div class="text-sm text-gray-500">Quizzes</div>
+          </div>
+          <div>
+            <div id="highScore" class="text-2xl font-bold"></div>
+            <div class="text-sm text-gray-500">High Score</div>
+          </div>
+          <div>
+            <div id="globalRank" class="text-2xl font-bold"></div>
+            <div class="text-sm text-gray-500">Global Rank</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div
+      id="loadingScreen"
+      class="w-full max-w-2xl flex justify-center items-center h-64 hidden"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading"
+    >
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+      ></div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quizScreen" class="w-full max-w-2xl space-y-4 hidden">
+      <div class="flex justify-between items-center flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <span id="playerName" class="font-semibold"></span>
+          <span
+            id="playerCountry"
+            class="text-sm bg-gray-100 px-2 py-1 rounded flex items-center gap-1 hidden"
+            aria-label="Player Country"
+          >
+            <i data-lucide="flag" class="h-3 w-3"></i>
+            <span id="countryName"></span>
+          </span>
+        </div>
+        <div class="flex items-center gap-4 flex-wrap">
+          <span
+            id="streak"
+            class="flex items-center gap-1 text-yellow-600 font-semibold hidden"
+            aria-label="Current Streak"
+          >
+            <i data-lucide="sparkles" class="h-4 w-4"></i>
+            <span id="streakCount"></span>
+          </span>
+          <span
+            class="flex items-center gap-1 font-semibold"
+            aria-label="Time Remaining"
+          >
+            <i data-lucide="clock" class="h-4 w-4 text-red-500"></i>
+            <span id="timer">15s</span>
+          </span>
+          <span id="questionProgress" class="font-semibold"></span>
+        </div>
+      </div>
+      <div class="p-6 bg-white rounded-lg shadow">
+        <div class="flex justify-between items-start mb-4 flex-wrap gap-2">
+          <div>
+            <span
+              id="questionMeta"
+              class="text-sm font-medium text-gray-500"
+              aria-label="Question Category and Difficulty"
+            ></span>
+            <h2 id="questionText" class="text-xl font-semibold mt-1"></h2>
+          </div>
+          <span
+            id="questionPoints"
+            class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium hidden"
+            aria-label="Question Points"
+          ></span>
+        </div>
+        <div id="options" class="space-y-2" role="list" aria-label="Answer options"></div>
+        <div
+          id="explanation"
+          class="mt-4 p-3 bg-blue-50 rounded text-sm hidden"
+          aria-live="polite"
+          aria-label="Explanation"
+        >
+          <p class="font-medium">Explanation:</p>
+          <p id="explanationText"></p>
+        </div>
+        <div class="flex justify-between items-center mt-6 flex-wrap gap-2">
+          <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              id="progressBar"
+              class="bg-blue-600 h-2.5 rounded-full"
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+            ></div>
+          </div>
+          <button
+            id="submitBtn"
+            class="ml-4 bg-green-600 hover:bg-green-700 text-white rounded-md py-2 px-4 disabled:opacity-50"
+            aria-label="Submit Answer"
+          >
+            Submit <i data-lucide="chevron-right" class="ml-1 h-4 w-4 inline"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="resultsScreen" class="w-full max-w-4xl space-y-6 hidden" aria-live="polite">
+      <div class="p-6 bg-white rounded-lg shadow text-center">
+        <div class="flex justify-center mb-4">
+          <div id="resultIcon" class="p-3 rounded-full"></div>
+        </div>
+        <h2 id="resultMessage" class="text-3xl font-bold mb-2"></h2>
+        <p class="text-xl mb-4">
+          <span id="resultName"></span>, you scored
+          <span id="resultScore" class="font-bold"></span> out of
+          <span id="totalQuestions"></span>
+        </p>
+        <p id="streakMessage" class="text-gray-500 mb-6 hidden"></p>
+        <div class="flex justify-center gap-4 flex-wrap">
+          <button
+            id="playAgainBtn"
+            class="border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-50"
+            aria-label="Play Again"
+          >
+            Play Again
+          </button>
+          <button
+            id="shareResultsBtn"
+            class="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 px-4"
+            aria-label="Share Results"
+          >
+            Share Results
+          </button>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="p-6 bg-white rounded-lg shadow">
+          <h3
+            class="text-xl font-semibold mb-4 flex items-center gap-2"
+            aria-label="Leaderboard"
+          >
+            <i data-lucide="trophy" class="text-yellow-500"></i> Leaderboard
+          </h3>
+          <div id="leaderboard" class="space-y-2"></div>
+        </div>
+        <div class="p-6 bg-white rounded-lg shadow">
+          <h3
+            class="text-xl font-semibold mb-4 flex items-center gap-2"
+            aria-label="Performance Stats"
+          >
+            <i data-lucide="bar-chart" class="text-blue-500"></i> Performance Stats
+          </h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Correct Answers</span>
+                <span id="correctAnswers"></span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  id="correctAnswersBar"
+                  class="bg-blue-600 h-2.5 rounded-full"
+                ></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Average Time</span>
+                <span id="avgTime"></span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="avgTimeBar" class="bg-blue-600 h-2.5 rounded-full"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Max Streak</span>
+                <span id="maxStreak"></span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="maxStreakBar" class="bg-blue-600 h-2.5 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-8 text-center text-sm text-gray-500">
+    <p>© 2025 Global Buzz Quiz. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // State variables
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let selectedAnswer = null;
+    let score = 0;
+    let showResults = false;
+    let name = "";
+    let category = "all";
+    let difficulty = "all";
+    let leaderboard = [];
+    let timeLeft = 15;
+    let timerActive = false;
+    let countries = [];
+    let country = "";
+    let userStats = null;
+    let streak = 0;
+    let maxStreak = 0;
+    let showExplanation = false;
+    let dailyChallenge = null;
+    let userRank = null;
+    let quizStarted = false;
+    let selectedLanguage = "en";
+    let selectedTheme = "light";
+    let isLoading = false;
+    let timerId = null;
+
+    const languages = [
+      { code: "en", name: "English" },
+      { code: "es", name: "Español" },
+      { code: "fr", name: "Français" },
+      { code: "de", name: "Deutsch" },
+      { code: "ja", name: "日本語" },
+    ];
+
+    // DOM elements
+    const mainContent = document.getElementById("mainContent");
+    const startScreen = document.getElementById("startScreen");
+    const loadingScreen = document.getElementById("loadingScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const resultsScreen = document.getElementById("resultsScreen");
+    const nameInput = document.getElementById("nameInput");
+    const countrySelect = document.getElementById("countrySelect");
+    const categorySelect = document.getElementById("categorySelect");
+    const difficultySelect = document.getElementById("difficultySelect");
+    const startQuizBtn = document.getElementById("startQuizBtn");
+    const dailyChallengeDiv = document.getElementById("dailyChallenge");
+    const challengeDate = document.getElementById("challengeDate");
+    const challengeDescription = document.getElementById("challengeDescription");
+    const joinChallengeBtn = document.getElementById("joinChallengeBtn");
+    const userStatsDiv = document.getElementById("userStats");
+    const totalQuizzes = document.getElementById("totalQuizzes");
+    const highScore = document.getElementById("highScore");
+    const globalRank = document.getElementById("globalRank");
+    const playerName = document.getElementById("playerName");
+    const playerCountry = document.getElementById("playerCountry");
+    const countryName = document.getElementById("countryName");
+    const streakDiv = document.getElementById("streak");
+    const streakCount = document.getElementById("streakCount");
+    const timer = document.getElementById("timer");
+    const questionProgress = document.getElementById("questionProgress");
+    const questionMeta = document.getElementById("questionMeta");
+    const questionText = document.getElementById("questionText");
+    const questionPoints = document.getElementById("questionPoints");
+    const optionsDiv = document.getElementById("options");
+    const explanationDiv = document.getElementById("explanation");
+    const explanationText = document.getElementById("explanationText");
+    const progressBar = document.getElementById("progressBar");
+    const submitBtn = document.getElementById("submitBtn");
+    const resultIcon = document.getElementById("resultIcon");
+    const resultMessage = document.getElementById("resultMessage");
+    const resultName = document.getElementById("resultName");
+    const resultScore = document.getElementById("resultScore");
+    const totalQuestions = document.getElementById("totalQuestions");
+    const streakMessage = document.getElementById("streakMessage");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const shareResultsBtn = document.getElementById("shareResultsBtn");
+    const leaderboardDiv = document.getElementById("leaderboard");
+    const correctAnswers = document.getElementById("correctAnswers");
+    const correctAnswersBar = document.getElementById("correctAnswersBar");
+    const avgTime = document.getElementById("avgTime");
+    const avgTimeBar = document.getElementById("avgTimeBar");
+    const maxStreakSpan = document.getElementById("maxStreak");
+    const maxStreakBar = document.getElementById("maxStreakBar");
+    const languageSelect = document.getElementById("languageSelect");
+    const themeSelect = document.getElementById("themeSelect");
+
+    // Mock API functions (replace with actual API endpoints)
+    async function fetchQuestions(lang, cat, diff) {
+      // Return 15 sample questions with options, answers, explanations, categories, difficulties, and points
+      return [
+        {
+          question: "What is the capital city of France?",
+          options: ["Paris", "Berlin", "Madrid", "Rome"],
+          answer: "Paris",
+          explanation: "Paris is the capital and most populous city of France.",
+          category: "Geography",
+          difficulty: "easy",
+          points: 5,
+        },
+        {
+          question: "Which element has the chemical symbol 'O'?",
+          options: ["Gold", "Oxygen", "Silver", "Iron"],
+          answer: "Oxygen",
+          explanation: "Oxygen's chemical symbol is 'O'.",
+          category: "Science & Nature",
+          difficulty: "easy",
+          points: 5,
+        },
+        {
+          question: "Who was the first President of the United States?",
+          options: ["George Washington", "Thomas Jefferson", "Abraham Lincoln", "John Adams"],
+          answer: "George Washington",
+          explanation: "George Washington served as the first President from 1789 to 1797.",
+          category: "History",
+          difficulty: "medium",
+          points: 7,
+        },
+        {
+          question: "Which sport is known as 'the beautiful game'?",
+          options: ["Basketball", "Soccer", "Tennis", "Cricket"],
+          answer: "Soccer",
+          explanation: "Soccer is often called 'the beautiful game'.",
+          category: "Sports",
+          difficulty: "easy",
+          points: 5,
+        },
+        {
+          question: "Which movie features the character 'Forrest Gump'?",
+          options: ["Forrest Gump", "The Green Mile", "Cast Away", "Saving Private Ryan"],
+          answer: "Forrest Gump",
+          explanation: "Tom Hanks starred as Forrest Gump in the 1994 film.",
+          category: "Entertainment",
+          difficulty: "easy",
+          points: 5,
+        },
+        {
+          question: "What is the largest planet in our Solar System?",
+          options: ["Earth", "Jupiter", "Saturn", "Mars"],
+          answer: "Jupiter",
+          explanation: "Jupiter is the largest planet in the Solar System.",
+          category: "Science & Nature",
+          difficulty: "medium",
+          points: 7,
+        },
+        {
+          question: "In which year did World War II end?",
+          options: ["1945", "1939", "1918", "1963"],
+          answer: "1945",
+          explanation: "World War II ended in 1945.",
+          category: "History",
+          difficulty: "medium",
+          points: 7,
+        },
+        {
+          question: "Which country won the FIFA World Cup in 2018?",
+          options: ["France", "Croatia", "Brazil", "Germany"],
+          answer: "France",
+          explanation: "France won the 2018 FIFA World Cup held in Russia.",
+          category: "Sports",
+          difficulty: "medium",
+          points: 7,
+        },
+        {
+          question: "Who composed the Four Seasons?",
+          options: ["Antonio Vivaldi", "Johann Sebastian Bach", "Ludwig van Beethoven", "Wolfgang Amadeus Mozart"],
+          answer: "Antonio Vivaldi",
+          explanation: "Vivaldi composed the famous violin concertos called The Four Seasons.",
+          category: "Entertainment",
+          difficulty: "hard",
+          points: 10,
+        },
+        {
+          question: "Which continent is the Sahara Desert located on?",
+          options: ["Africa", "Asia", "Australia", "South America"],
+          answer: "Africa",
+          explanation: "The Sahara Desert is the largest hot desert in Africa.",
+          category: "Geography",
+          difficulty: "easy",
+          points: 5,
+        },
+        {
+          question: "What is the powerhouse of the cell?",
+          options: ["Nucleus", "Mitochondria", "Ribosome", "Chloroplast"],
+          answer: "Mitochondria",
+          explanation: "Mitochondria generate most of the cell's supply of ATP.",
+          category: "Science & Nature",
+          difficulty: "medium",
+          points: 7,
+        },
+        {
+          question: "Who discovered penicillin?",
+          options: ["Alexander Fleming", "Marie Curie", "Louis Pasteur", "Isaac Newton"],
+          answer: "Alexander Fleming",
+          explanation: "Fleming discovered penicillin in 1928.",
+          category: "Science & Nature",
+          difficulty: "hard",
+          points: 10,
+        },
+        {
+          question: "Which empire was ruled by Genghis Khan?",
+          options: ["Mongol Empire", "Roman Empire", "Ottoman Empire", "British Empire"],
+          answer: "Mongol Empire",
+          explanation: "Genghis Khan founded and ruled the Mongol Empire.",
+          category: "History",
+          difficulty: "hard",
+          points: 10,
+        },
+        {
+          question: "Which tennis player has won the most Grand Slam titles?",
+          options: ["Roger Federer", "Rafael Nadal", "Novak Djokovic", "Serena Williams"],
+          answer: "Novak Djokovic",
+          explanation: "As of 2024, Novak Djokovic holds the record for most men's Grand Slam titles.",
+          category: "Sports",
+          difficulty: "hard",
+          points: 10,
+        },
+        {
+          question: "Which film won the Academy Award for Best Picture in 2020?",
+          options: ["Parasite", "1917", "Joker", "Once Upon a Time in Hollywood"],
+          answer: "Parasite",
+          explanation: "Parasite won Best Picture at the 92nd Academy Awards.",
+          category: "Entertainment",
+          difficulty: "medium",
+          points: 7,
+        }
+      ];
+    }
+
+    async function fetchDailyChallenge() {
+      return {
+        date: new Date().toISOString(),
+        description:
+          "Test your knowledge with today's special geography challenge!",
+        category: "Geography",
+        difficulty: "medium",
+      };
+    }
+
+    async function fetchLeaderboard(country) {
+      return {
+        leaderboard: [
+          { name: "Player1", score: 20, country: "US" },
+          { name: "Player2", score: 18, country: "UK" },
+          { name: "Player3", score: 15, country: "CA" },
+          { name: "Player4", score: 14, country: "FR" },
+          { name: "Player5", score: 13, country: "DE" },
+          { name: "Player6", score: 12, country: "JP" },
+          { name: "Player7", score: 11, country: "BR" },
+          { name: "Player8", score: 10, country: "IN" },
+          { name: "Player9", score: 9, country: "CN" },
+          { name: "Player10", score: 8, country: "RU" },
+        ],
+        userRank: name ? 6 : null,
+      };
+    }
+
+    async function fetchUserStats(name) {
+      return {
+        totalQuizzes: 10,
+        highScore: 18,
+        rank: 100,
+      };
+    }
+
+    async function submitToLeaderboard(data) {
+      console.log("Submitting to leaderboard:", data);
+    }
+
+    // Initialize
+    async function init() {
+      // Fetch countries
+      const res = await fetch("https://restcountries.com/v3.1/all");
+      const data = await res.json();
+      countries = data
+        .map((c) => ({
+          code: c.cca2,
+          name: c.name.common,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      countrySelect.innerHTML =
+        '<option value="">Select Your Country</option>' +
+        countries
+          .map((c) => `<option value="${c.code}">${c.name}</option>`)
+          .join("");
+
+      // Load user stats from localStorage
+      const savedStats = localStorage.getItem("quizUserStats");
+      if (savedStats) {
+        userStats = JSON.parse(savedStats);
+        updateUserStats();
+      }
+
+      // Load daily challenge
+      await loadDailyChallenge();
+    }
+
+    // Event listeners
+    nameInput.addEventListener("input", (e) => {
+      name = e.target.value;
+    });
+
+    countrySelect.addEventListener("change", (e) => {
+      country = e.target.value;
+    });
+
+    categorySelect.addEventListener("change", (e) => {
+      category = e.target.value;
+    });
+
+    difficultySelect.addEventListener("change", (e) => {
+      difficulty = e.target.value;
+    });
+
+    languageSelect.addEventListener("change", (e) => {
+      selectedLanguage = e.target.value;
+    });
+
+    themeSelect.addEventListener("change", (e) => {
+      selectedTheme = e.target.value;
+      document.body.className = `flex flex-col items-center min-h-screen p-4 ${
+        selectedTheme === "dark" ? "bg-gray-900 text-white" : "bg-blue-50"
+      }`;
+    });
+
+    startQuizBtn.addEventListener("click", startQuiz);
+    joinChallengeBtn.addEventListener("click", () => {
+      category = dailyChallenge.category || "all";
+      difficulty = dailyChallenge.difficulty || "all";
+      categorySelect.value = category;
+      difficultySelect.value = difficulty;
+      startQuiz();
+    });
+
+    playAgainBtn.addEventListener("click", handleRestart);
+    shareResultsBtn.addEventListener("click", () => {
+      alert("Share functionality not implemented.");
+    });
+
+    // Timer function
+    function startTimer() {
+      if (timerActive && timeLeft > 0) {
+        timerId = setTimeout(() => {
+          timeLeft--;
+          timer.textContent = `${timeLeft}s`;
+          startTimer();
+        }, 1000);
+      } else if (timerActive && timeLeft === 0) {
+        handleSubmit();
+      }
+    }
+
+    // Load functions
+    async function loadQuestions() {
+      isLoading = true;
+      updateUI();
+      try {
+        questions = await fetchQuestions(selectedLanguage, category, difficulty);
+        currentQuestionIndex = 0;
+        showResults = false;
+        score = 0;
+        selectedAnswer = null;
+        streak = 0;
+        maxStreak = 0;
+        timeLeft = 15;
+        timerActive = true;
+        showExplanation = false;
+        updateQuizScreen();
+        startTimer();
+      } catch (error) {
+        console.error("Error loading questions:", error);
+      } finally {
+        isLoading = false;
+        updateUI();
+      }
+    }
+
+    async function loadDailyChallenge() {
+      try {
+        dailyChallenge = await fetchDailyChallenge();
+        if (dailyChallenge) {
+          challengeDate.textContent = new Date(
+            dailyChallenge.date
+          ).toLocaleDateString();
+          challengeDescription.textContent = dailyChallenge.description;
+          dailyChallengeDiv.classList.remove("hidden");
+        }
+      } catch (error) {
+        console.error("Error loading daily challenge:", error);
+      }
+    }
+
+    async function loadLeaderboard() {
+      try {
+        const data = await fetchLeaderboard(country);
+        leaderboard = data.leaderboard || [];
+        userRank = data.userRank || null;
+        updateLeaderboard();
+      } catch (error) {
+        console.error("Error loading leaderboard:", error);
+        leaderboard = [];
+        updateLeaderboard();
+      }
+    }
+
+    async function loadUserStats() {
+      try {
+        userStats = await fetchUserStats(name);
+        if (userStats) {
+          localStorage.setItem("quizUserStats", JSON.stringify(userStats));
+          updateUserStats();
+        }
+      } catch (error) {
+        console.error("Error loading user stats:", error);
+        userStats = null;
+        updateUserStats();
+      }
+    }
+
+    async function submitScore() {
+      if (!name) return;
+      try {
+        await submitToLeaderboard({
+          name,
+          score,
+          country,
+          category,
+          difficulty,
+          timeTaken: (questions.length * 15 - timeLeft) / questions.length,
+        });
+        await loadLeaderboard();
+        await loadUserStats();
+      } catch (error) {
+        console.error("Failed to submit score", error);
+      }
+    }
+
+    function updateUI() {
+      startScreen.classList.add("hidden");
+      loadingScreen.classList.add("hidden");
+      quizScreen.classList.add("hidden");
+      resultsScreen.classList.add("hidden");
+
+      if (!quizStarted) {
+        startScreen.classList.remove("hidden");
+      } else if (isLoading) {
+        loadingScreen.classList.remove("hidden");
+      } else if (!showResults) {
+        quizScreen.classList.remove("hidden");
+      } else {
+        resultsScreen.classList.remove("hidden");
+      }
+    }
+
+    function updateQuizScreen() {
+      if (questions.length === 0) {
+        optionsDiv.innerHTML =
+          '<p class="text-center text-gray-500">No questions available. Please try again later.</p>';
+        return;
+      }
+
+      const currentQuestion = questions[currentQuestionIndex];
+      playerName.textContent = name;
+      if (country) {
+        playerCountry.classList.remove("hidden");
+        countryName.textContent =
+          countries.find((c) => c.code === country)?.name || "";
+      } else {
+        playerCountry.classList.add("hidden");
+      }
+      if (streak > 2) {
+        streakDiv.classList.remove("hidden");
+        streakCount.textContent = streak;
+      } else {
+        streakDiv.classList.add("hidden");
+      }
+      timer.textContent = `${timeLeft}s`;
+      questionProgress.textContent = `${currentQuestionIndex + 1}/${
+        questions.length
+      }`;
+      questionMeta.textContent = `${currentQuestion.category} • ${capitalizeFirstLetter(currentQuestion.difficulty)}`;
+      questionText.textContent = currentQuestion.question;
+      if (currentQuestion.points) {
+        questionPoints.textContent = `${currentQuestion.points} pts`;
+        questionPoints.classList.remove("hidden");
+      } else {
+        questionPoints.classList.add("hidden");
+      }
+      optionsDiv.innerHTML = currentQuestion.options
+        .map((option) => {
+          const isSelected = selectedAnswer === option;
+          const isCorrect = currentQuestion.answer === option;
+          let classes =
+            "w-full justify-start text-left h-auto py-3 border rounded-md px-4 flex items-center gap-2";
+          if (showExplanation) {
+            if (isCorrect) {
+              classes += " border-green-500 bg-green-50";
+            } else if (isSelected && !isCorrect) {
+              classes += " border-red-500 bg-red-50";
+            }
+          } else if (isSelected) {
+            classes += " border-blue-500 bg-blue-100";
+          }
+          return `
+            <button
+              class="${classes}"
+              ${showExplanation ? "disabled" : ""}
+              onclick="selectOption('${option.replace(/'/g, "\\'")}')"
+              role="listitem"
+              aria-pressed="${isSelected ? "true" : "false"}"
+              aria-label="Answer option: ${option}"
+              type="button"
+            >
+              ${
+                showExplanation
+                  ? isCorrect
+                    ? '<i data-lucide="check" class="text-green-500 h-4 w-4"></i>'
+                    : isSelected
+                    ? '<i data-lucide="x" class="text-red-500 h-4 w-4"></i>'
+                    : '<span class="w-4 h-4"></span>'
+                  : '<span class="w-4 h-4"></span>'
+              }
+              <span>${option}</span>
+            </button>
+          `;
+        })
+        .join("");
+      lucide.createIcons();
+      if (showExplanation && currentQuestion.explanation) {
+        explanationDiv.classList.remove("hidden");
+        explanationText.textContent = currentQuestion.explanation;
+      } else {
+        explanationDiv.classList.add("hidden");
+      }
+      progressBar.style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+      progressBar.setAttribute(
+        "aria-valuenow",
+        ((currentQuestionIndex + 1) / questions.length) * 100
+      );
+      submitBtn.disabled = !selectedAnswer && !showExplanation;
+      submitBtn.textContent = showExplanation ? "Next Question" : "Submit";
+    }
+
+    function selectOption(option) {
+      if (!showExplanation) {
+        selectedAnswer = option;
+        updateQuizScreen();
+      }
+    }
+
+    function handleSubmit() {
+      clearTimeout(timerId);
+      timerActive = false;
+
+      const currentQuestion = questions[currentQuestionIndex];
+      const isCorrect = selectedAnswer === currentQuestion.answer;
+      if (isCorrect) {
+        score++;
+        streak++;
+        maxStreak = Math.max(maxStreak, streak);
+      } else {
+        streak = 0;
+      }
+
+      showExplanation = true;
+      updateQuizScreen();
+
+      setTimeout(() => {
+        const nextIndex = currentQuestionIndex + 1;
+        if (nextIndex < questions.length) {
+          currentQuestionIndex = nextIndex;
+          selectedAnswer = null;
+          timeLeft = 15;
+          timerActive = true;
+          showExplanation = false;
+          updateQuizScreen();
+          startTimer();
+        } else {
+          showResults = true;
+          submitScore();
+          updateResultsScreen();
+        }
+      }, 2000);
+    }
+
+    function updateResultsScreen() {
+      updateUI();
+      if (score === questions.length) {
+        resultIcon.innerHTML =
+          '<i data-lucide="trophy" class="h-12 w-12"></i>';
+        resultIcon.className = "bg-yellow-100 text-yellow-800 p-3 rounded-full";
+        resultMessage.textContent = "Perfect Score! 🎉";
+      } else if (score >= questions.length * 0.8) {
+        resultIcon.innerHTML =
+          '<i data-lucide="award" class="h-12 w-12"></i>';
+        resultIcon.className = "bg-blue-100 text-blue-800 p-3 rounded-full";
+        resultMessage.textContent = "Great Job! 👏";
+      } else {
+        resultIcon.innerHTML =
+          '<i data-lucide="check" class="h-12 w-12"></i>';
+        resultIcon.className = "bg-green-100 text-green-800 p-3 rounded-full";
+        resultMessage.textContent = "Well Done!";
+      }
+      lucide.createIcons();
+      resultName.textContent = name || "Player";
+      resultScore.textContent = score;
+      totalQuestions.textContent = questions.length;
+      if (maxStreak > 3) {
+        streakMessage.textContent = `🔥 You had a streak of ${maxStreak} correct answers!`;
+        streakMessage.classList.remove("hidden");
+      } else {
+        streakMessage.classList.add("hidden");
+      }
+      correctAnswers.textContent = `${score} / ${questions.length}`;
+      correctAnswersBar.style.width = `${(score / questions.length) * 100}%`;
+      const avgTimeVal = ((questions.length * 15 - timeLeft) / questions.length).toFixed(1);
+      avgTime.textContent = `${avgTimeVal}s`;
+      avgTimeBar.style.width = `${100 - (avgTimeVal / 15) * 100}%`;
+      maxStreakSpan.textContent = maxStreak;
+      maxStreakBar.style.width = `${(maxStreak / questions.length) * 100}%`;
+    }
+
+    function updateLeaderboard() {
+      leaderboardDiv.innerHTML = leaderboard
+        .slice(0, 5)
+        .map((entry, index) => {
+          const isUser = entry.name === name;
+          return `
+          <div class="flex items-center justify-between p-2 rounded ${
+            isUser ? "bg-blue-50" : ""
+          }" role="listitem" aria-label="Rank ${index + 1}, ${entry.name}, score ${entry.score}">
+            <div class="flex items-center gap-3">
+              <span class="${
+                index === 0
+                  ? "text-yellow-500"
+                  : index === 1
+                  ? "text-gray-500"
+                  : index === 2
+                  ? "text-amber-700"
+                  : ""
+              } font-medium">${index + 1}.</span>
+              <div class="flex items-center gap-2">
+                <span class="font-medium">${entry.name}</span>
+                ${
+                  entry.country
+                    ? `<span class="text-xs bg-gray-100 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <i data-lucide="flag" class="h-3 w-3"></i>
+                      ${countries.find((c) => c.code === entry.country)?.name || ""}
+                    </span>`
+                    : ""
+                }
+              </div>
+            </div>
+            <span class="font-bold">${entry.score}</span>
+          </div>
+        `;
+        })
+        .join("");
+      if (userRank && userRank > 5) {
+        leaderboardDiv.innerHTML += `
+          <div class="text-center py-2">...</div>
+          <div class="flex items-center justify-between p-2 rounded bg-blue-50" role="listitem" aria-label="Your rank ${userRank}, ${name}, score ${score}">
+            <div class="flex items-center gap-3">
+              <span class="font-medium">${userRank}.</span>
+              <span class="font-medium">${name}</span>
+            </div>
+            <span class="font-bold">${score}</span>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    function updateUserStats() {
+      if (userStats) {
+        totalQuizzes.textContent = userStats.totalQuizzes;
+        highScore.textContent = userStats.highScore;
+        globalRank.textContent = userStats.rank;
+        userStatsDiv.classList.remove("hidden");
+      } else {
+        userStatsDiv.classList.add("hidden");
+      }
+    }
+
+    function startQuiz() {
+      if (!name) {
+        alert("Please enter your name to start the quiz");
+        return;
+      }
+      quizStarted = true;
+      loadQuestions();
+    }
+
+    function handleRestart() {
+      category = "all";
+      difficulty = "all";
+      score = 0;
+      selectedAnswer = null;
+      showResults = false;
+      currentQuestionIndex = 0;
+      streak = 0;
+      maxStreak = 0;
+      timeLeft = 15;
+      timerActive = false;
+      showExplanation = false;
+      quizStarted = false;
+      categorySelect.value = "all";
+      difficultySelect.value = "all";
+      updateUI();
+    }
+
+    // Expose selectOption globally for inline onclick
+    window.selectOption = selectOption;
+    window.handleSubmit = handleSubmit;
+
+    submitBtn.addEventListener("click", () => {
+      if (showExplanation) {
+        // Next question
+        clearTimeout(timerId);
+        timerActive = false;
+        const nextIndex = currentQuestionIndex + 1;
+        if (nextIndex < questions.length) {
+          currentQuestionIndex = nextIndex;
+          selectedAnswer = null;
+          timeLeft = 15;
+          timerActive = true;
+          showExplanation = false;
+          updateQuizScreen();
+          startTimer();
+        } else {
+          showResults = true;
+          submitScore();
+          updateResultsScreen();
+        }
+      } else {
+        handleSubmit();
+      }
+    });
+
+    // Helper function
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
