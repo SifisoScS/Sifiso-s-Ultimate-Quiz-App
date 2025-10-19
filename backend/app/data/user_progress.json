@@ -1,0 +1,21 @@
+{
+    "The Maintenance Guy": {
+        "Math": {
+            "correct": 0,
+            "total": 0
+        },
+        "Science": {
+            "correct": 2,
+            "total": 2
+        },
+        "Social Studies": {
+            "correct": 0,
+            "total": 0
+        },
+        "English": {
+            "correct": 0,
+            "total": 0
+        },
+        "badges": []
+    }
+}
