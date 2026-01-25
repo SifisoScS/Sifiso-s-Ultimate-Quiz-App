@@ -1,9 +1,9 @@
 # src/quiz_app.py
 import streamlit as st
 import time
-from src.utils.file_utils import load_questions_from_csv
-from src.utils.quiz_logic import shuffle_questions, check_answer
-from src.utils.leaderboard_utils import load_leaderboard, update_leaderboard
+from utils.file_utils import load_questions_from_csv
+from utils.quiz_logic import shuffle_questions, check_answer
+from utils.leaderboard_utils import load_leaderboard, update_leaderboard
 
 # Set page config (MUST BE THE FIRST STREAMLIT COMMAND)
 st.set_page_config(page_title="Sifiso's Ultimate Quiz App", page_icon=":question:", layout="wide")
